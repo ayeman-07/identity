@@ -1,3 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities; 
+@import "tailwindcss";
+
+/* Your custom CSS can go here */
+
+/* Fullscreen STL Viewer styles */
+.stl-viewer-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  background: #1e293b !important;
+}
+
+/* Hide scrollbars in fullscreen mode */
+.stl-viewer-fullscreen::-webkit-scrollbar {
+  display: none;
+}
+
+.stl-viewer-fullscreen {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+} 
