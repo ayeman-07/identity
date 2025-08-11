@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../../../lib/prisma.js';
+import { geocodeAddress } from '../../../../utils/geocode.js';
 import { generateToken } from '../../../../lib/auth.js';
 
 export async function POST(request) {
   try {
-    const { name, email, password, role } = await request.json();
+  const { name, email, password, role, address, location } = await request.json();
 
     // Validation
     if (!name || !email || !password || !role) {
@@ -57,19 +58,33 @@ export async function POST(request) {
 
       // Create clinic or lab profile based on role
       if (role === 'CLINIC') {
+        let latLng = { latitude: null, longitude: null };
+        if (address) {
+          latLng = await geocodeAddress(address);
+        }
         await tx.clinic.create({
           data: {
             name,
+            address: address || null,
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
             userId: user.id
           }
         });
       } else if (role === 'LAB') {
+        const loc = location || '';
+        let latLng = { latitude: null, longitude: null };
+        if (loc) {
+          latLng = await geocodeAddress(loc);
+        }
         await tx.lab.create({
           data: {
             name,
             services: [],
             turnaroundTime: 7, // Default 7 days
-            location: '',
+            location: loc,
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
             userId: user.id
           }
         });

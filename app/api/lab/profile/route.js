@@ -1,5 +1,6 @@
 import { requireLab } from '../../../../lib/auth.js';
 import { prisma } from '../../../../lib/prisma.js';
+import { geocodeAddress } from '../../../../utils/geocode.js';
 
 // GET lab profile
 export async function GET(request) {
@@ -43,7 +44,9 @@ export async function GET(request) {
       turnaroundTime: lab.turnaroundTime,
       location: lab.location || '',
       rating: lab.rating,
-      logo: lab.logo || null
+      logo: lab.logo || null,
+      latitude: lab.latitude ?? null,
+      longitude: lab.longitude ?? null
     };
 
     return Response.json({
@@ -72,7 +75,7 @@ export async function PUT(request) {
   }
 
   try {
-    const { name, email, services, turnaroundTime, location, logo } = await request.json();
+  const { name, email, services, turnaroundTime, location, logo } = await request.json();
 
     // Validation
     if (!name || !email) {
@@ -113,6 +116,13 @@ export async function PUT(request) {
       });
 
       // Update lab profile
+      // Compute optional geocode update
+      let latLngUpdate = {};
+      if (typeof location === 'string') {
+        const { latitude, longitude } = await geocodeAddress(location);
+        latLngUpdate = { latitude, longitude };
+      }
+
       const lab = await tx.lab.update({
         where: { userId: authResult.user.id },
         data: {
@@ -120,7 +130,8 @@ export async function PUT(request) {
           services: services || [],
           turnaroundTime: turnaroundTime || 7,
           location: location || '',
-          logo: logo || null
+          logo: logo || null,
+          ...latLngUpdate
         },
         include: {
           user: {

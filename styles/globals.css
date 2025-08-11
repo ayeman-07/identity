@@ -22,3 +22,6 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 } 
+
+/* Leaflet map styles */
+@import 'leaflet/dist/leaflet.css';

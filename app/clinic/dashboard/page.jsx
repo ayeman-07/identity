@@ -106,6 +106,12 @@ export default function ClinicDashboard() {
             </div>
             <div className="flex space-x-4">
               <Link
+                href="/map"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                🗺️ Map
+              </Link>
+              <Link
                 href="/clinic/upload-case"
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
               >

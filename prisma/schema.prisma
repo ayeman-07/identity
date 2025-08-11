@@ -43,6 +43,8 @@ model Clinic {
   name        String
   phone       String?
   address     String?
+  latitude    Float?
+  longitude   Float?
   specialties String[]
   cases       Case[]
   favorites   FavoriteLab[] // Favorite labs

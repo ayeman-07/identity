@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Prisma Migrate add lat/long",
+			"type": "shell",
+			"command": "npx prisma migrate dev --name add_lat_long_fields",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		}
+	]
+}

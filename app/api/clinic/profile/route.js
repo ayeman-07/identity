@@ -1,5 +1,6 @@
 import { requireClinic } from '../../../../lib/auth.js';
 import { prisma } from '../../../../lib/prisma.js';
+import { geocodeAddress } from '../../../../utils/geocode.js';
 
 // GET clinic profile
 export async function GET(request) {
@@ -41,7 +42,9 @@ export async function GET(request) {
       email: clinic.user.email,
       phone: clinic.phone || '',
       address: clinic.address || '',
-      specialties: clinic.specialties || []
+      specialties: clinic.specialties || [],
+      latitude: clinic.latitude ?? null,
+      longitude: clinic.longitude ?? null
     };
 
     return Response.json({
@@ -70,7 +73,7 @@ export async function PUT(request) {
   }
 
   try {
-    const { name, email, phone, address, specialties } = await request.json();
+  const { name, email, phone, address, specialties } = await request.json();
 
     // Validation
     if (!name || !email) {
@@ -104,13 +107,21 @@ export async function PUT(request) {
       });
 
       // Update clinic profile
+      // Compute optional geocode update
+      let latLngUpdate = {};
+      if (typeof address === 'string') {
+        const { latitude, longitude } = await geocodeAddress(address);
+        latLngUpdate = { latitude, longitude };
+      }
+
       const clinic = await tx.clinic.update({
         where: { userId: authResult.user.id },
         data: {
           name,
           phone: phone || null,
           address: address || null,
-          specialties: specialties || []
+          specialties: specialties || [],
+          ...latLngUpdate
         },
         include: {
           user: {
