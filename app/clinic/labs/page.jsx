@@ -68,7 +68,7 @@ export default function LabDiscovery() {
   const fetchLabs = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/labs/discover', {
+      const response = await fetch('/api/labs', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

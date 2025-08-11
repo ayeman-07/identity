@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import FileList from '../../../components/FileList';
 import LogoutButton from '../../../components/LogoutButton';
 
-export default function UploadCase() {
+function UploadCaseContent() {
   const [formData, setFormData] = useState({
     title: '',
     toothNumber: '',
@@ -20,6 +20,7 @@ export default function UploadCase() {
   const [labs, setLabs] = useState([]);
   const [labsLoading, setLabsLoading] = useState(true);
   const [selectedLabName, setSelectedLabName] = useState('');
+  const [isLabFixed, setIsLabFixed] = useState(false); // New state to track if lab is fixed
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,9 +52,10 @@ export default function UploadCase() {
             if (selectedLab) {
               setFormData(prev => ({ ...prev, labId: preSelectedLabId }));
               setSelectedLabName(selectedLab.name);
-              toast.success(`${selectedLab.name} has been pre-selected for this case.`, {
+              setIsLabFixed(true); // Mark lab as fixed when pre-selected
+              toast.success(`${selectedLab.name} has been locked for this case.`, {
                 duration: 4000,
-                icon: '🏥'
+                icon: '🔒'
               });
             }
           }
@@ -152,8 +154,28 @@ export default function UploadCase() {
           </div>
           
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Pre-selected Lab Banner */}
-            {selectedLabName && (
+            {/* Lab Assignment Banner */}
+            {selectedLabName && isLabFixed && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      🔒 Lab Assignment Locked
+                    </h3>
+                    <div className="mt-1 text-sm text-blue-700">
+                      <p>This case is assigned to <strong>{selectedLabName}</strong> and cannot be changed. You selected this lab specifically for this case.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedLabName && !isLabFixed && (
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -251,8 +273,8 @@ export default function UploadCase() {
               <label htmlFor="labId" className="block text-sm font-medium text-gray-700">
                 Assign to Specific Lab (Optional)
                 {selectedLabName && (
-                  <span className="ml-2 text-sm font-normal text-indigo-600">
-                    • {selectedLabName} pre-selected
+                  <span className={`ml-2 text-sm font-normal ${isLabFixed ? 'text-blue-600' : 'text-indigo-600'}`}>
+                    • {selectedLabName} {isLabFixed ? '(locked)' : 'pre-selected'}
                   </span>
                 )}
               </label>
@@ -264,8 +286,12 @@ export default function UploadCase() {
                   const selectedLab = labs.find(lab => lab.id === e.target.value);
                   setSelectedLabName(selectedLab ? selectedLab.name : '');
                 }}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={labsLoading}
+                className={`mt-1 block w-full border rounded-md px-3 py-2 focus:outline-none ${
+                  isLabFixed 
+                    ? 'border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed' 
+                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
+                disabled={labsLoading || isLabFixed}
               >
                 <option value="">Leave unassigned (labs can accept)</option>
                 {labs.map((lab) => (
@@ -277,9 +303,11 @@ export default function UploadCase() {
               <p className="mt-1 text-sm text-gray-500">
                 {labsLoading 
                   ? 'Loading available labs...' 
-                  : selectedLabName
-                    ? `Case will be assigned directly to ${selectedLabName}. You can change this selection if needed.`
-                    : 'Leave unassigned to let labs accept the case, or assign to a specific lab.'
+                  : isLabFixed && selectedLabName
+                    ? `🔒 Case is locked to ${selectedLabName}. This cannot be changed as you selected this lab specifically.`
+                    : selectedLabName
+                      ? `Case will be assigned directly to ${selectedLabName}. You can change this selection if needed.`
+                      : 'Leave unassigned to let labs accept the case, or assign to a specific lab.'
                 }
               </p>
             </div>
@@ -298,5 +326,20 @@ export default function UploadCase() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UploadCase() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <UploadCaseContent />
+    </Suspense>
   );
 } 

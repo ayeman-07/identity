@@ -1,10 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 import FavoriteButton from './FavoriteButton';
 
-export default function LabCard({ lab, isFavorite, onToggleFavorite, onSendCase, onViewProfile, size = 'normal' }) {
+export default function LabCard({ 
+  lab, 
+  isFavorite, 
+  onToggleFavorite, 
+  onSendCase, 
+  onViewProfile, 
+  size = 'normal',
+  onFavoriteToggle
+}) {
   const [imageError, setImageError] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   // Safely handle missing lab data
   if (!lab) {
@@ -15,8 +26,64 @@ export default function LabCard({ lab, isFavorite, onToggleFavorite, onSendCase,
   const totalReviews = lab.totalReviews || lab._count?.reviews || 0;
   const totalCases = lab.totalCases || lab._count?.cases || 0;
   const favoriteCount = lab.favoriteCount || lab._count?.favorites || 0;
-  const rating = lab.rating || 0;
+  const rating = lab.averageRating || lab.rating || 0;
   const turnaroundTime = lab.turnaroundTime || 0;
+
+  const handleFavoriteToggle = async () => {
+    if (onToggleFavorite) {
+      onToggleFavorite();
+      return;
+    }
+
+    // Fallback to API call if no handler provided
+    setIsTogglingFavorite(true);
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (isFavorite) {
+        // Remove from favorites
+        const response = await fetch(`/api/labs/favorites?labId=${lab.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to remove from favorites');
+        }
+
+        toast.success('Lab removed from favorites');
+      } else {
+        // Add to favorites
+        const response = await fetch('/api/labs/favorites', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ labId: lab.id })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to favorites');
+        }
+
+        toast.success('Lab added to favorites');
+      }
+
+      // Notify parent component
+      if (onFavoriteToggle) {
+        onFavoriteToggle(lab.id, !isFavorite);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update favorites');
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  };
 
   const getRatingColor = (rating) => {
     if (rating >= 4.5) return 'text-green-600 bg-green-100';

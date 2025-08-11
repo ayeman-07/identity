@@ -30,8 +30,7 @@ export async function GET(request) {
             location: true,
             rating: true,
             specialties: true,
-            website: true,
-            phone: true
+            logo: true
           }
         }
       },
@@ -52,8 +51,7 @@ export async function GET(request) {
         location: user.lab.location,
         rating: user.lab.rating,
         specialties: user.lab.specialties || [],
-        website: user.lab.website,
-        phone: user.lab.phone,
+        logo: user.lab.logo,
         email: user.email
       }));
 

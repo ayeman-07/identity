@@ -87,7 +87,7 @@ export async function GET(request) {
     });
 
     // Filter out users without lab profiles and get reviews for each lab
-    const labsWithStats = await Promise.all(
+    let labsWithStats = await Promise.all(
       labUsers
         .filter(user => user.lab) // Only include users with lab profiles
         .map(async (user) => {
@@ -131,9 +131,8 @@ export async function GET(request) {
         })
     );
 
-    // Sort the results
+    // Sort the results by rating first, then by name
     labsWithStats.sort((a, b) => {
-      // Sort by rating first, then by name
       if (b.averageRating !== a.averageRating) {
         return b.averageRating - a.averageRating;
       }
@@ -142,7 +141,14 @@ export async function GET(request) {
 
     return Response.json({
       labs: labsWithStats,
-      total: labsWithStats.length
+      total: labsWithStats.length,
+      filters: {
+        specialties,
+        maxTurnaroundTime,
+        minRating,
+        location,
+        search
+      }
     });
 
   } catch (error) {
