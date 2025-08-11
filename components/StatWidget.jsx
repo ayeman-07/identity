@@ -2,36 +2,36 @@
 
 export default function StatWidget({ title, value, subtitle, icon, color = 'blue', trend = null }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
-    green: 'bg-green-50 text-green-700 border-green-200',
-    yellow: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    purple: 'bg-purple-50 text-purple-700 border-purple-200',
-    red: 'bg-red-50 text-red-700 border-red-200',
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+    blue: 'bg-blue-500/10 text-blue-200 border-blue-400/20',
+    green: 'bg-green-500/10 text-green-200 border-green-400/20',
+    yellow: 'bg-yellow-500/10 text-yellow-200 border-yellow-400/20',
+    purple: 'bg-purple-500/10 text-purple-200 border-purple-400/20',
+    red: 'bg-red-500/10 text-red-200 border-red-400/20',
+    indigo: 'bg-indigo-500/10 text-indigo-200 border-indigo-400/20'
   };
 
   const iconColorClasses = {
-    blue: 'text-blue-500',
-    green: 'text-green-500',
-    yellow: 'text-yellow-500',
-    purple: 'text-purple-500',
-    red: 'text-red-500',
-    indigo: 'text-indigo-500'
+    blue: 'text-blue-300',
+    green: 'text-green-300',
+    yellow: 'text-yellow-300',
+    purple: 'text-purple-300',
+    red: 'text-red-300',
+    indigo: 'text-indigo-300'
   };
 
   return (
     <div className={`p-6 rounded-lg border ${colorClasses[color]} bg-opacity-50`}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-300 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-100">{value}</p>
           {subtitle && (
-            <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+            <p className="text-sm text-gray-400 mt-1">{subtitle}</p>
           )}
           {trend && (
             <div className={`text-sm mt-2 flex items-center ${
-              trend.direction === 'up' ? 'text-green-600' : 
-              trend.direction === 'down' ? 'text-red-600' : 'text-gray-600'
+              trend.direction === 'up' ? 'text-green-300' : 
+              trend.direction === 'down' ? 'text-red-300' : 'text-gray-400'
             }`}>
               {trend.direction === 'up' && (
                 <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">

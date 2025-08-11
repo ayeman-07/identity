@@ -67,10 +67,10 @@ export default function ClinicDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -78,12 +78,12 @@ export default function ClinicDashboard() {
 
   if (!dashboardData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Failed to load dashboard data</p>
+          <p className="text-red-300 mb-4">Failed to load dashboard data</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            className="btn-gradient px-4 py-2"
           >
             Retry
           </button>
@@ -95,31 +95,31 @@ export default function ClinicDashboard() {
   const { clinic, stats, recentCases, favoriteLabs, recommendedLabs, recentMessages } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Clinic Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {clinic.name}</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">Clinic Dashboard</span></h1>
+              <p className="text-gray-400">Welcome back, {clinic.name}</p>
             </div>
             <div className="flex space-x-4">
               <Link
                 href="/map"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                className="btn-ghost px-4 py-2 hover:bg-emerald-900/20 border-emerald-400/30 text-emerald-200"
               >
                 🗺️ Map
               </Link>
               <Link
                 href="/clinic/upload-case"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="btn-gradient px-4 py-2"
               >
                 + New Case
               </Link>
               <Link
                 href="/clinic/cases"
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                className="btn-ghost px-4 py-2 hover:bg-white/5"
               >
                 View All Cases
               </Link>
@@ -165,13 +165,13 @@ export default function ClinicDashboard() {
 
         {/* Status Breakdown */}
         {stats.statusBreakdown && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Case Status Breakdown</h3>
+          <div className="glass-card p-6 mb-8">
+            <h3 className="text-lg font-medium text-gray-100 mb-4">Case Status Breakdown</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
               {Object.entries(stats.statusBreakdown).map(([status, count]) => (
                 <div key={status} className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">{count}</div>
-                  <div className="text-sm text-gray-500 capitalize">{status.replace('_', ' ')}</div>
+                  <div className="text-2xl font-bold text-gray-100">{count}</div>
+                  <div className="text-sm text-gray-400 capitalize">{status.replace('_', ' ')}</div>
                 </div>
               ))}
             </div>
@@ -181,12 +181,12 @@ export default function ClinicDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Cases */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="glass-card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Recent Cases</h3>
+                <h3 className="text-lg font-medium text-gray-100">Recent Cases</h3>
                 <Link
                   href="/clinic/cases"
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                  className="text-sm text-indigo-300 hover:text-indigo-200"
                 >
                   View all →
                 </Link>
@@ -205,11 +205,11 @@ export default function ClinicDashboard() {
               ) : (
                 <div className="text-center py-12">
                   <div className="text-4xl mb-4">📋</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No cases yet</h3>
-                  <p className="text-gray-500 mb-4">Get started by creating your first case</p>
+                  <h3 className="text-lg font-medium text-gray-100 mb-2">No cases yet</h3>
+                  <p className="text-gray-400 mb-4">Get started by creating your first case</p>
                   <Link
                     href="/clinic/upload-case"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex items-center text-sm font-medium rounded-md btn-gradient px-4 py-2"
                   >
                     Create First Case
                   </Link>
@@ -220,19 +220,19 @@ export default function ClinicDashboard() {
 
           {/* Recent Messages */}
           <div>
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Messages</h3>
+            <div className="glass-card p-6 mb-6">
+              <h3 className="text-lg font-medium text-gray-100 mb-4">Recent Messages</h3>
               {recentMessages && recentMessages.length > 0 ? (
                 <div className="space-y-3">
                   {recentMessages.map((message) => (
                     <div key={message.id} className="border-l-4 border-blue-400 pl-3 py-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{message.senderName}</p>
-                          <p className="text-sm text-gray-600 mt-1">{message.content}</p>
+                          <p className="text-sm font-medium text-gray-100">{message.senderName}</p>
+                          <p className="text-sm text-gray-300 mt-1">{message.content}</p>
                           <Link
                             href={`/clinic/cases/${message.caseId}`}
-                            className="text-xs text-indigo-600 hover:text-indigo-500 mt-1 inline-block"
+                            className="text-xs text-indigo-300 hover:text-indigo-200 mt-1 inline-block"
                           >
                             {message.caseTitle} →
                           </Link>
@@ -247,30 +247,30 @@ export default function ClinicDashboard() {
               ) : (
                 <div className="text-center py-8">
                   <div className="text-2xl mb-2">💬</div>
-                  <p className="text-gray-500 text-sm">No recent messages</p>
+                  <p className="text-gray-400 text-sm">No recent messages</p>
                 </div>
               )}
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-medium text-gray-100 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link
                   href="/clinic/upload-case"
-                  className="block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                  className="block w-full text-center text-sm font-medium rounded-md btn-gradient px-4 py-2"
                 >
                   + Create New Case
                 </Link>
                 <Link
                   href="/clinic/labs"
-                  className="block w-full text-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="block w-full text-center text-sm font-medium rounded-md btn-ghost px-4 py-2"
                 >
                   Browse Labs
                 </Link>
                 <Link
                   href="/clinic/cases"
-                  className="block w-full text-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="block w-full text-center text-sm font-medium rounded-md btn-ghost px-4 py-2"
                 >
                   View All Cases
                 </Link>

@@ -45,27 +45,27 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to i-Dentity
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md glass-card p-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight">
+            <span className="tx-gradient">Sign in to i-Dentity</span>
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-400">
             Access your dental collaboration platform
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="border border-red-400/40 bg-red-900/20 text-red-200 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
-          
+
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-xs uppercase tracking-wide text-gray-400 mb-1">
                 Email address
               </label>
               <input
@@ -75,13 +75,13 @@ export default function Login() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter your email"
+                className="input-dark w-full px-3 py-2"
+                placeholder="you@example.com"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-xs uppercase tracking-wide text-gray-400 mb-1">
                 Password
               </label>
               <input
@@ -91,25 +91,22 @@ export default function Login() {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter your password"
+                className="input-dark w-full px-3 py-2"
+                placeholder="Your password"
               />
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="btn-gradient w-full py-2.5 text-sm font-medium disabled:opacity-60"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
-          </div>
-
-          <div className="text-center">
-            <a href="/register" className="text-indigo-600 hover:text-indigo-500">
-              Don't have an account? Sign up
+            <a href="/register" className="block text-center text-sm text-indigo-300 hover:text-indigo-200">
+              Don’t have an account? Sign up
             </a>
           </div>
         </form>

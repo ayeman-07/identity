@@ -25,3 +25,82 @@
 
 /* Leaflet map styles */
 @import 'leaflet/dist/leaflet.css';
+
+/* ---- Dark theme base & utilities ---- */
+:root {
+  --bg-base: #0b1220;           /* deep slate/navy */
+  --bg-card: rgba(255,255,255,0.05);
+  --bd-card: rgba(255,255,255,0.08);
+  --tx-primary: #e5e7eb;        /* slate-200 */
+  --tx-secondary: #9ca3af;      /* slate-400 */
+  --brand-a: #22c55e;           /* emerald */
+  --brand-b: #6366f1;           /* indigo */
+  --brand-c: #06b6d4;           /* cyan */
+}
+
+html, body {
+  background:
+    radial-gradient(1200px 800px at 10% 10%, #0ea5e933 0%, transparent 40%),
+    radial-gradient(1000px 700px at 90% 20%, #a78bfa22 0%, transparent 45%),
+    radial-gradient(900px 600px at 20% 85%, #22c55e22 0%, transparent 45%),
+    var(--bg-base);
+  color: var(--tx-primary);
+}
+
+/* faint grid overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(1000px 600px at 50% 30%, black 60%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Glass card surface */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bd-card);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);
+}
+
+/* Gradient primary button */
+.btn-gradient {
+  background-image: linear-gradient(135deg, var(--brand-a), var(--brand-b));
+  color: white;
+  border-radius: 10px;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-gradient:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(99,102,241,0.35); }
+.btn-gradient:active { transform: translateY(0); }
+
+/* Secondary button */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--bd-card);
+  color: var(--tx-primary);
+  border-radius: 10px;
+}
+
+/* Inputs for dark */
+.input-dark {
+  background: rgba(15,23,42,0.6);
+  border: 1px solid rgba(148,163,184,0.25);
+  color: var(--tx-primary);
+  border-radius: 10px;
+}
+.input-dark:focus { outline: none; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,0.25); }
+
+/* Gradient text utility */
+.tx-gradient {
+  background: linear-gradient(90deg, #a78bfa, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

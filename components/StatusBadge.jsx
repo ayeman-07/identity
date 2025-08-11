@@ -4,49 +4,49 @@ export default function StatusBadge({ status, size = 'md' }) {
   const getStatusConfig = (status) => {
     const configs = {
       'NEW': {
-        color: 'bg-gray-100 text-gray-800',
+        color: 'bg-white/10 text-gray-200 border border-white/20',
         icon: '🆕',
         label: 'New'
       },
       'ACCEPTED': {
-        color: 'bg-blue-100 text-blue-800',
+        color: 'bg-blue-500/10 text-blue-200 border border-blue-400/20',
         icon: '✅',
         label: 'Accepted'
       },
       'DESIGNING': {
-        color: 'bg-yellow-100 text-yellow-800',
+        color: 'bg-yellow-500/10 text-yellow-200 border border-yellow-400/20',
         icon: '🎨',
         label: 'Designing'
       },
       'READY': {
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-green-500/10 text-green-200 border border-green-400/20',
         icon: '✨',
         label: 'Ready'
       },
       'DISPATCHED': {
-        color: 'bg-orange-100 text-orange-800',
+        color: 'bg-orange-500/10 text-orange-200 border border-orange-400/20',
         icon: '🚚',
         label: 'Dispatched'
       },
       'DELIVERED': {
-        color: 'bg-teal-100 text-teal-800',
+        color: 'bg-teal-500/10 text-teal-200 border border-teal-400/20',
         icon: '📦',
         label: 'Delivered'
       },
       'CANCELLED': {
-        color: 'bg-red-100 text-red-800',
+        color: 'bg-red-500/10 text-red-200 border border-red-400/20',
         icon: '❌',
         label: 'Cancelled'
       },
       'REJECTED': {
-        color: 'bg-red-100 text-red-800',
+        color: 'bg-red-500/10 text-red-200 border border-red-400/20',
         icon: '🚫',
         label: 'Rejected'
       }
     };
 
     return configs[status] || {
-      color: 'bg-gray-100 text-gray-800',
+      color: 'bg-white/10 text-gray-200 border border-white/20',
       icon: '❓',
       label: status
     };

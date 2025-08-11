@@ -21,25 +21,24 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <div className="min-h-dvh">
+          {children}
+        </div>
         <Toaster 
           position="top-right"
           toastOptions={{
             duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
+            style: { background: '#0f172a', color: '#e5e7eb', border: '1px solid rgba(148,163,184,0.2)' },
             success: {
               duration: 3000,
               style: {
-                background: '#10B981',
+                background: '#065f46',
               },
             },
             error: {
               duration: 5000,
               style: {
-                background: '#EF4444',
+                background: '#7f1d1d',
               },
             },
           }}

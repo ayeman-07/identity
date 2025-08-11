@@ -71,12 +71,12 @@ export default function StatusUpdateControl({ caseData, onStatusUpdate, userRole
   const canUpdate = userRole === 'LAB' && nextStatus && currentStatus !== 'DELIVERED';
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Case Status</h3>
+    <div className="glass-card p-6">
+      <h3 className="text-lg font-medium text-gray-100 mb-4">Case Status</h3>
       
       {/* Current Status */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+  <label className="block text-sm font-medium text-gray-300 mb-2">
           Current Status
         </label>
         <StatusBadge status={currentStatus} size="lg" />
@@ -86,13 +86,13 @@ export default function StatusUpdateControl({ caseData, onStatusUpdate, userRole
       {canUpdate && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Update Status
             </label>
             <button
               onClick={() => handleStatusUpdate(nextStatus)}
               disabled={updating}
-              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              className="w-full btn-gradient px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               <span>
                 {updating ? 'Updating...' : `Move to ${nextStatus.replace('_', ' ')}`}
@@ -101,7 +101,7 @@ export default function StatusUpdateControl({ caseData, onStatusUpdate, userRole
             </button>
             
             {nextStatus && (
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-gray-400">
                 {getStatusDescription(nextStatus)}
               </p>
             )}
@@ -111,12 +111,12 @@ export default function StatusUpdateControl({ caseData, onStatusUpdate, userRole
 
       {/* Final Status Message */}
       {currentStatus === 'DELIVERED' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="rounded-lg p-4 border border-green-400/20 bg-green-500/10">
           <div className="flex items-center">
-            <span className="text-green-600 text-xl mr-2">🎉</span>
+            <span className="text-green-300 text-xl mr-2">🎉</span>
             <div>
-              <h4 className="text-green-800 font-medium">Case Completed!</h4>
-              <p className="text-green-700 text-sm">This case has been successfully delivered.</p>
+              <h4 className="text-green-200 font-medium">Case Completed!</h4>
+              <p className="text-green-300 text-sm">This case has been successfully delivered.</p>
             </div>
           </div>
         </div>
@@ -124,12 +124,12 @@ export default function StatusUpdateControl({ caseData, onStatusUpdate, userRole
 
       {/* Read-only for Clinics */}
       {userRole === 'CLINIC' && currentStatus !== 'DELIVERED' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="rounded-lg p-4 border border-blue-400/20 bg-blue-500/10">
           <div className="flex items-center">
-            <span className="text-blue-600 text-xl mr-2">ℹ️</span>
+            <span className="text-blue-300 text-xl mr-2">ℹ️</span>
             <div>
-              <h4 className="text-blue-800 font-medium">Status Updates</h4>
-              <p className="text-blue-700 text-sm">
+              <h4 className="text-blue-200 font-medium">Status Updates</h4>
+              <p className="text-blue-300 text-sm">
                 The lab will update the status as work progresses on your case.
               </p>
             </div>

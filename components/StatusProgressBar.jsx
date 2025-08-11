@@ -36,7 +36,7 @@ export default function StatusProgressBar({ currentStatus, statusHistory = [] })
                 {/* Line before (except for first item) */}
                 {index > 0 && (
                   <div className={`flex-1 h-1 ${
-                    index <= currentIndex ? 'bg-blue-500' : 'bg-gray-200'
+                    index <= currentIndex ? 'bg-blue-500' : 'bg-white/10'
                   }`} />
                 )}
                 
@@ -44,10 +44,10 @@ export default function StatusProgressBar({ currentStatus, statusHistory = [] })
                 <div className={`
                   relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all
                   ${isCompleted 
-                    ? 'bg-blue-500 border-blue-500 text-white' 
-                    : 'bg-white border-gray-300 text-gray-400'
+                    ? 'bg-blue-600 border-blue-500 text-white' 
+                    : 'bg-white/10 border-white/20 text-gray-400'
                   }
-                  ${isCurrent ? 'ring-4 ring-blue-200 ring-opacity-50' : ''}
+                  ${isCurrent ? 'ring-4 ring-blue-500/30' : ''}
                 `}>
                   {isCompleted ? (
                     <span className="text-sm">
@@ -61,7 +61,7 @@ export default function StatusProgressBar({ currentStatus, statusHistory = [] })
                 {/* Line after (except for last item) */}
                 {index < statuses.length - 1 && (
                   <div className={`flex-1 h-1 ${
-                    index < currentIndex ? 'bg-blue-500' : 'bg-gray-200'
+                    index < currentIndex ? 'bg-blue-500' : 'bg-white/10'
                   }`} />
                 )}
               </div>
@@ -69,12 +69,12 @@ export default function StatusProgressBar({ currentStatus, statusHistory = [] })
               {/* Status Label */}
               <div className="mt-2 text-center">
                 <div className={`text-sm font-medium ${
-                  isCompleted ? 'text-blue-600' : 'text-gray-500'
+                  isCompleted ? 'text-blue-300' : 'text-gray-400'
                 }`}>
                   {status.label}
                 </div>
                 {timestamp && (
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="text-xs text-gray-500 mt-1">
                     {timestamp.toLocaleDateString()}
                   </div>
                 )}
