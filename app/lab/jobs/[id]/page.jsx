@@ -1,130 +1,120 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import toast from 'react-hot-toast';
-import LogoutButton from '../../../../components/LogoutButton';
 import FileList from '../../../../components/FileList';
-import StatusBadge from '../../../../components/StatusBadge';
+import LogoutButton from '../../../../components/LogoutButton';
+import MessageThread from '../../../../components/MessageThread';
 import StatusProgressBar from '../../../../components/StatusProgressBar';
 import StatusHistory from '../../../../components/StatusHistory';
 import StatusUpdateControl from '../../../../components/StatusUpdateControl';
-import MessageThread from '../../../../components/MessageThread';
 
-export default function JobDetails() {
+export default function LabJobDetail() {
   const params = useParams();
-  const [caseData, setCaseData] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const router = useRouter();
+  const [caseItem, setCaseItem] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-
-  const handleStatusUpdate = (updatedCase) => {
-    setCaseData(updatedCase);
-  };
+  const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
-    if (params.id) {
-      fetchUserAndCaseDetails(token, params.id);
-    }
-  }, [params.id]);
-
-  const fetchUserAndCaseDetails = async (token, caseId) => {
-    try {
-      // Fetch current user info
-      const userResponse = await fetch('/api/user/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+    const fetchCaseDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/login');
+          return;
         }
-      });
 
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        setCurrentUser(userData.user);
-      }
-
-      // Fetch case details
-      const response = await fetch(`/api/case/${caseId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+        // Fetch current user (for chat box)
+        try {
+          const userResponse = await fetch('/api/user/me', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            setCurrentUser(userData.user);
+          }
+        } catch {
+          // non-blocking for chat
         }
-      });
 
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        return;
+        // Fetch case details
+        const response = await fetch(`/api/case/${params.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch case details');
+        }
+
+        const data = await response.json();
+        setCaseItem(data.case);
+      } catch (e) {
+        console.error('Error fetching case details:', e);
+        setError('Failed to load case details');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+    fetchCaseDetails();
+  }, [params.id, router]);
 
-      const data = await response.json();
-      setCaseData(data.case);
-    } catch (error) {
-      console.error('Error fetching case details:', error);
-      toast.error('Error loading case details. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleStatusUpdate = (updatedCase) => {
+    setCaseItem(updatedCase);
   };
 
-  const updateStatus = async (newStatus) => {
-    if (!caseData) return;
-    
-    setUpdating(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/case/${caseData.id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setCaseData(prev => ({ ...prev, status: newStatus }));
-      toast.success(`Case status updated to ${newStatus.replace('_', ' ')}`);
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error('Error updating status. Please try again.');
-    } finally {
-      setUpdating(false);
-    }
+  const getStatusColor = (status) => {
+    const colors = {
+      ACCEPTED: 'bg-blue-500/10 text-blue-200 border border-blue-400/20',
+      IN_PROGRESS: 'bg-yellow-500/10 text-yellow-200 border border-yellow-400/20',
+      READY: 'bg-purple-500/10 text-purple-200 border border-purple-400/20',
+      DISPATCHED: 'bg-indigo-500/10 text-indigo-200 border border-indigo-400/20',
+      DELIVERED: 'bg-green-500/10 text-green-200 border border-green-400/20',
+      CANCELLED: 'bg-red-500/10 text-red-200 border border-red-400/20',
+      REJECTED: 'bg-red-500/10 text-red-200 border border-red-400/20',
+    };
+    return colors[status] || 'bg-white/10 text-gray-200 border border-white/20';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-400">Loading job details...</div>
       </div>
     );
   }
 
-  if (!caseData) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Case Not Found</h2>
-          <Link 
-            href="/lab/jobs"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-          >
+          <div className="text-red-400 text-xl mb-4">{error}</div>
+          <Link href="/lab/jobs" className="btn-ghost px-4 py-2 hover:bg-white/5">
+            Back to Jobs
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!caseItem) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-400 text-xl mb-4">Job not found</div>
+          <Link href="/lab/jobs" className="btn-ghost px-4 py-2 hover:bg-white/5">
             Back to Jobs
           </Link>
         </div>
@@ -133,20 +123,19 @@ export default function JobDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{caseData.title}</h1>
-              <p className="text-gray-600">Case Details</p>
+              <h1 className="text-3xl font-bold">
+                <span className="tx-gradient">Job Details</span>
+              </h1>
+              <p className="text-gray-400">Case ID: {caseItem.id}</p>
             </div>
             <div className="flex space-x-4">
-              <Link 
-                href="/lab/jobs"
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
+              <Link href="/lab/jobs" className="btn-ghost px-4 py-2 hover:bg-white/5">
                 Back to Jobs
               </Link>
               <LogoutButton />
@@ -155,99 +144,120 @@ export default function JobDetails() {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Case Information */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Status Progress Bar */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Case Progress</h2>
-              <StatusProgressBar 
-                currentStatus={caseData.status} 
-                statusHistory={caseData.statusHistory || []}
-              />
-            </div>
+          {/* Actions & Case Information */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Case Information</h2>
 
-            {/* Case Details */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Case Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Title</label>
-                  <p className="mt-1 text-sm text-gray-900">{caseData.title}</p>
+                  <label className="block text-sm font-medium text-gray-400">Title</label>
+                  <p className="mt-1 text-sm text-gray-100">{caseItem.title}</p>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <div className="mt-1">
-                    <StatusBadge status={caseData.status} size="md" />
+                  <label className="block text-sm font-medium text-gray-400">Status</label>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                      caseItem.status
+                    )}`}
+                  >
+                    {caseItem.status.replace('_', ' ')}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400">Tooth Number</label>
+                  <p className="mt-1 text-sm text-gray-100">{caseItem.toothNumber || 'Not specified'}</p>
+                </div>
+
+                {caseItem.caseNotes && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">Notes</label>
+                    <p className="mt-1 text-sm text-gray-100">{caseItem.caseNotes}</p>
                   </div>
-                </div>
+                )}
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Clinic</label>
-                  <p className="mt-1 text-sm text-gray-900">{caseData.clinic?.name}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Created</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {new Date(caseData.createdAt).toLocaleDateString()}
+                  <label className="block text-sm font-medium text-gray-400">Created</label>
+                  <p className="mt-1 text-sm text-gray-100">
+                    {new Date(caseItem.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-              </div>
-              {caseData.description && (
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <p className="mt-1 text-sm text-gray-900">{caseData.description}</p>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400">Last Updated</label>
+                  <p className="mt-1 text-sm text-gray-100">
+                    {new Date(caseItem.updatedAt).toLocaleDateString()}
+                  </p>
                 </div>
-              )}
+
+                {caseItem.clinic && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">Clinic</label>
+                    <p className="mt-1 text-sm text-gray-100">{caseItem.clinic.name}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Files */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Case Files</h2>
-              <FileList 
-                files={caseData.files || []} 
-                showUpload={false}
-                readOnly={true}
-              />
-            </div>
-
-            {/* Message Thread */}
-            <MessageThread
-              caseId={caseData.id}
-              currentUser={currentUser}
-            />
-
-            {/* Status History */}
-            <StatusHistory statusHistory={caseData.statusHistory || []} />
-          </div>
-
-          {/* Actions Sidebar */}
-          <div className="space-y-6">
-            {/* Status Update Control */}
-            <StatusUpdateControl 
-              caseData={caseData}
+            {/* Status Update Control (Lab) */}
+            <StatusUpdateControl
+              caseData={caseItem}
               onStatusUpdate={handleStatusUpdate}
               userRole="LAB"
             />
 
             {/* Lab Information */}
-            {caseData.lab && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Lab Information</h3>
+            {caseItem.lab && (
+              <div className="glass-card p-6">
+                <h3 className="text-lg font-medium text-gray-100 mb-4">Lab Information</h3>
                 <div className="space-y-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Lab Name</label>
-                    <p className="text-sm text-gray-900">{caseData.lab.name}</p>
+                    <label className="block text-sm font-medium text-gray-400">Lab Name</label>
+                    <p className="text-sm text-gray-100">{caseItem.lab.name}</p>
                   </div>
-                  {caseData.lab.rating && (
+                  {caseItem.lab.rating && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Rating</label>
-                      <p className="text-sm text-gray-900">⭐ {caseData.lab.rating}/5</p>
+                      <label className="block text-sm font-medium text-gray-400">Rating</label>
+                      <p className="text-sm text-gray-100">⭐ {caseItem.lab.rating}/5</p>
                     </div>
                   )}
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Files, Progress, Chat, History */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Files & 3D Models</h2>
+
+              <FileList
+                files={caseItem.files || []}
+                caseId={caseItem.id}
+                onFileUpload={() => {}}
+                canUpload={false}
+              />
+            </div>
+
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Case Progress</h2>
+              <StatusProgressBar
+                currentStatus={caseItem.status}
+                statusHistory={caseItem.statusHistory || []}
+              />
+            </div>
+
+            <MessageThread caseId={caseItem.id} currentUser={currentUser} />
+
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Status History</h2>
+              <StatusHistory statusHistory={caseItem.statusHistory || []} />
+            </div>
           </div>
         </div>
       </div>

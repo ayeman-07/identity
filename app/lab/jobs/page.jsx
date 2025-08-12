@@ -65,44 +65,29 @@ export default function LabJobs() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading jobs...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading jobs...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Jobs</h1>
-              <p className="text-gray-600">Manage your assigned cases</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">My Jobs</span></h1>
+              <p className="text-gray-400">Manage your assigned cases</p>
             </div>
             <div className="flex space-x-4">
-              <Link 
-                href="/lab/dashboard"
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/lab/incoming"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Incoming Cases
-              </Link>
-              <Link 
-                href="/lab/jobs/completed"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Completed Jobs
-              </Link>
+              <Link href="/lab/dashboard" className="btn-ghost px-4 py-2 hover:bg-white/5">Dashboard</Link>
+              <Link href="/lab/incoming" className="btn-gradient px-4 py-2">Incoming Cases</Link>
+              <Link href="/lab/jobs/completed" className="btn-ghost px-4 py-2 hover:bg-white/5">Completed Jobs</Link>
               <LogoutButton />
             </div>
           </div>
@@ -112,7 +97,7 @@ export default function LabJobs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filter Tabs */}
         <div className="mb-6">
-          <div className="border-b border-gray-200">
+          <div className="border-b border-white/10">
             <nav className="-mb-px flex space-x-8">
               {[
                 { key: 'all', label: 'All Jobs', count: cases.length },
@@ -125,8 +110,8 @@ export default function LabJobs() {
                   onClick={() => setFilter(tab.key)}
                   className={`py-2 px-1 border-b-2 font-medium text-sm ${
                     filter === tab.key
-                      ? 'border-indigo-500 text-indigo-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-indigo-400 text-indigo-300'
+                      : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-white/20'
                   }`}
                 >
                   {tab.label} ({tab.count})
@@ -140,42 +125,42 @@ export default function LabJobs() {
         {filteredCases.length > 0 ? (
           <div className="space-y-4">
             {filteredCases.map((caseItem) => (
-              <div key={caseItem.id} className="bg-white rounded-lg shadow p-6">
+              <div key={caseItem.id} className="glass-card p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900">{caseItem.title}</h3>
-                    <p className="text-sm text-gray-600">From: {caseItem.clinic?.name}</p>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-lg font-medium text-gray-100">{caseItem.title}</h3>
+                    <p className="text-sm text-gray-300">From: {caseItem.clinic?.name}</p>
+                    <p className="text-sm text-gray-300">
                       Received: {new Date(caseItem.createdAt).toLocaleDateString()}
                     </p>
                     {caseItem.description && (
-                      <p className="text-sm text-gray-500 mt-2">{caseItem.description}</p>
+                      <p className="text-sm text-gray-400 mt-2">{caseItem.description}</p>
                     )}
                     <div className="mt-3">
-                      <span className="text-sm text-gray-500">Files: </span>
-                      <span className="text-sm font-medium">{caseItem.files?.length || 0} uploaded</span>
+                      <span className="text-sm text-gray-400">Files: </span>
+                      <span className="text-sm font-medium text-gray-200">{caseItem.files?.length || 0} uploaded</span>
                       {caseItem.messageCount > 0 && (
                         <>
-                          <span className="text-sm text-gray-500 ml-4">Messages: </span>
-                          <span className="text-sm font-medium">{caseItem.messageCount}</span>
+                          <span className="text-sm text-gray-400 ml-4">Messages: </span>
+                          <span className="text-sm font-medium text-gray-200">{caseItem.messageCount}</span>
                         </>
                       )}
                     </div>
                   </div>
                   <div className="flex flex-col items-end space-y-2 ml-6">
                     <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                      caseItem.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-800' :
-                      caseItem.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
-                      caseItem.status === 'READY' ? 'bg-purple-100 text-purple-800' :
-                      caseItem.status === 'DISPATCHED' ? 'bg-indigo-100 text-indigo-800' :
-                      caseItem.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
+                      caseItem.status === 'ACCEPTED' ? 'bg-blue-500/10 text-blue-200 border border-blue-400/20' :
+                      caseItem.status === 'IN_PROGRESS' ? 'bg-yellow-500/10 text-yellow-200 border border-yellow-400/20' :
+                      caseItem.status === 'READY' ? 'bg-purple-500/10 text-purple-200 border border-purple-400/20' :
+                      caseItem.status === 'DISPATCHED' ? 'bg-indigo-500/10 text-indigo-200 border border-indigo-400/20' :
+                      caseItem.status === 'DELIVERED' ? 'bg-green-500/10 text-green-200 border border-green-400/20' :
+                      'bg-white/10 text-gray-200 border border-white/20'
                     }`}>
                       {caseItem.status.replace('_', ' ')}
                     </span>
                     <Link 
                       href={`/lab/jobs/${caseItem.id}`}
-                      className="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 transition-colors"
+                      className="btn-ghost px-4 py-2 text-sm hover:bg-white/5"
                     >
                       View Details
                     </Link>
@@ -186,11 +171,11 @@ export default function LabJobs() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">📋</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="text-gray-500 text-6xl mb-4">📋</div>
+            <h3 className="text-lg font-medium text-gray-100 mb-2">
               {filter === 'all' ? 'No jobs assigned yet' : `No ${filter === 'active' ? 'active' : filter.replace('_', ' ')} jobs`}
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-400 mb-6">
               {filter === 'all' 
                 ? 'Accept cases from the incoming queue to get started'
                 : 'Try changing the filter to see other jobs or accept new cases'
@@ -198,7 +183,7 @@ export default function LabJobs() {
             </p>
             <Link 
               href="/lab/incoming"
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="btn-gradient px-6 py-3"
             >
               Browse Incoming Cases
             </Link>

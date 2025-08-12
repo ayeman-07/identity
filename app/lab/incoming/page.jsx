@@ -139,41 +139,26 @@ export default function LabIncoming() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Incoming Cases</h1>
-              <p className="text-gray-600">Review cases from general pool and cases assigned specifically to your lab</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">Incoming Cases</span></h1>
+              <p className="text-gray-400">Review cases from general pool and cases assigned specifically to your lab</p>
             </div>
             <div className="flex space-x-4">
-              <Link 
-                href="/lab/dashboard"
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/lab/jobs"
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-              >
-                Active Jobs
-              </Link>
-              <Link 
-                href="/lab/jobs/completed"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Completed Jobs
-              </Link>
+              <Link href="/lab/dashboard" className="btn-ghost px-4 py-2 hover:bg-white/5">Dashboard</Link>
+              <Link href="/lab/jobs" className="btn-ghost px-4 py-2 hover:bg-white/5">Active Jobs</Link>
+              <Link href="/lab/jobs/completed" className="btn-gradient px-4 py-2">Completed Jobs</Link>
               <LogoutButton />
             </div>
           </div>
@@ -182,17 +167,17 @@ export default function LabIncoming() {
 
       {/* Cases List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="glass-card">
+          <div className="px-6 py-4 border-b border-white/10">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-lg font-medium text-gray-100">
                 Available Cases ({cases.length})
               </h2>
               <div className="flex space-x-4 text-sm">
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+                <span className="px-2 py-1 border border-purple-400/20 bg-purple-500/10 text-purple-200 rounded-full">
                   🎯 {cases.filter(c => c.isAssignedToLab).length} Assigned to You
                 </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                <span className="px-2 py-1 border border-white/20 bg-white/10 text-gray-200 rounded-full">
                   📢 {cases.filter(c => !c.isAssignedToLab).length} General Pool
                 </span>
               </div>
@@ -202,39 +187,33 @@ export default function LabIncoming() {
           <div className="p-6">
             {cases.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">No incoming cases available</p>
-                <p className="text-sm text-gray-400">New cases will appear here when clinics upload them</p>
+                <p className="text-gray-400 mb-4">No incoming cases available</p>
+                <p className="text-sm text-gray-500">New cases will appear here when clinics upload them</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {cases.map((caseItem) => (
-                  <div key={caseItem.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div key={caseItem.id} className="border border-white/10 bg-white/5 rounded-lg p-6 hover:bg-white/10 transition-colors">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
                           <Link 
                             href={`/lab/incoming/${caseItem.id}`}
-                            className="text-lg font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+                            className="text-lg font-medium text-gray-100 hover:text-indigo-300 transition-colors"
                           >
                             {caseItem.title}
                           </Link>
                           <div className="flex space-x-2">
-                            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                              NEW
-                            </span>
+                            <span className="px-2 py-1 text-xs font-medium bg-blue-500/10 text-blue-200 border border-blue-400/20 rounded-full">NEW</span>
                             {caseItem.isAssignedToLab ? (
-                              <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                                🎯 ASSIGNED TO YOU
-                              </span>
+                              <span className="px-2 py-1 text-xs font-medium bg-purple-500/10 text-purple-200 border border-purple-400/20 rounded-full">🎯 ASSIGNED TO YOU</span>
                             ) : (
-                              <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                                📢 GENERAL POOL
-                              </span>
+                              <span className="px-2 py-1 text-xs font-medium bg-white/10 text-gray-200 border border-white/20 rounded-full">📢 GENERAL POOL</span>
                             )}
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
                           <div>
                             <p><strong>Clinic:</strong> {caseItem.clinic.name}</p>
                             <p><strong>Tooth:</strong> {caseItem.toothNumber}</p>
@@ -246,9 +225,7 @@ export default function LabIncoming() {
                             )}
                             <p><strong>Files:</strong> {caseItem.files?.length || 0} uploaded</p>
                             {caseItem.isAssignedToLab && (
-                              <p className="text-purple-600 font-medium">
-                                💼 This case was specifically sent to your lab
-                              </p>
+                              <p className="text-purple-300 font-medium">💼 This case was specifically sent to your lab</p>
                             )}
                           </div>
                         </div>
@@ -257,13 +234,13 @@ export default function LabIncoming() {
                       <div className="flex space-x-2 ml-4">
                         <button
                           onClick={() => handleAcceptCase(caseItem.id)}
-                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                          className="btn-gradient px-4 py-2"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleRejectCase(caseItem.id)}
-                          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                          className="px-4 py-2 rounded-lg border border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/20 transition-colors"
                         >
                           Reject
                         </button>

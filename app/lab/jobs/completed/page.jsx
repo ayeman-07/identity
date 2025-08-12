@@ -84,41 +84,26 @@ export default function LabCompletedJobs() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Completed Jobs</h1>
-              <p className="text-gray-600">View your delivered cases and earnings</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">Completed Jobs</span></h1>
+              <p className="text-gray-400">View your delivered cases and earnings</p>
             </div>
             <div className="flex space-x-4">
-              <Link 
-                href="/lab/dashboard"
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/lab/incoming"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Incoming Cases
-              </Link>
-              <Link 
-                href="/lab/jobs"
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
-              >
-                Active Jobs
-              </Link>
+              <Link href="/lab/dashboard" className="btn-ghost px-4 py-2 hover:bg-white/5">Dashboard</Link>
+              <Link href="/lab/incoming" className="btn-gradient px-4 py-2">Incoming Cases</Link>
+              <Link href="/lab/jobs" className="btn-ghost px-4 py-2 hover:bg-white/5">Active Jobs</Link>
               <LogoutButton />
             </div>
           </div>
@@ -128,53 +113,53 @@ export default function LabCompletedJobs() {
       {/* Stats */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="glass-card p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 text-green-600">
+              <div className="p-3 rounded-full bg-green-500/10 text-green-300">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-                <p className="text-2xl font-semibold text-gray-900">${stats.totalEarnings}</p>
+                <p className="text-sm font-medium text-gray-400">Total Earnings</p>
+                <p className="text-2xl font-semibold text-gray-100">${stats.totalEarnings}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="glass-card p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+              <div className="p-3 rounded-full bg-blue-500/10 text-blue-300">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed Cases</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalCases}</p>
+                <p className="text-sm font-medium text-gray-400">Completed Cases</p>
+                <p className="text-2xl font-semibold text-gray-100">{stats.totalCases}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="glass-card p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+              <div className="p-3 rounded-full bg-purple-500/10 text-purple-300">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Average per Case</p>
-                <p className="text-2xl font-semibold text-gray-900">${stats.averageEarnings}</p>
+                <p className="text-sm font-medium text-gray-400">Average per Case</p>
+                <p className="text-2xl font-semibold text-gray-100">${stats.averageEarnings}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Completed Cases List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">
+        <div className="glass-card">
+          <div className="px-6 py-4 border-b border-white/10">
+            <h2 className="text-lg font-medium text-gray-100">
               Delivered Cases ({cases.length})
             </h2>
           </div>
@@ -182,23 +167,23 @@ export default function LabCompletedJobs() {
           <div className="p-6">
             {cases.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">No completed cases yet</p>
-                <p className="text-sm text-gray-400">Completed cases will appear here once delivered</p>
+                <p className="text-gray-400 mb-4">No completed cases yet</p>
+                <p className="text-sm text-gray-500">Completed cases will appear here once delivered</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {cases.map((caseItem) => (
-                  <div key={caseItem.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div key={caseItem.id} className="border border-white/10 bg-white/5 rounded-lg p-6 hover:bg-white/10 transition-colors">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
-                          <h3 className="text-lg font-medium text-gray-900">{caseItem.title}</h3>
-                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                          <h3 className="text-lg font-medium text-gray-100">{caseItem.title}</h3>
+                          <span className="px-2 py-1 text-xs font-medium bg-green-500/10 text-green-200 border border-green-400/20 rounded-full">
                             DELIVERED
                           </span>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
                           <div>
                             <p><strong>Clinic:</strong> {caseItem.clinic.name}</p>
                             <p><strong>Tooth:</strong> {caseItem.toothNumber}</p>
@@ -209,7 +194,7 @@ export default function LabCompletedJobs() {
                             {caseItem.caseNotes && (
                               <p><strong>Notes:</strong> {caseItem.caseNotes}</p>
                             )}
-                            <p><strong>Earnings:</strong> <span className="font-semibold text-green-600">${caseItem.earnings}</span></p>
+                            <p><strong>Earnings:</strong> <span className="font-semibold text-green-300">${caseItem.earnings}</span></p>
                           </div>
                         </div>
                       </div>
@@ -217,7 +202,7 @@ export default function LabCompletedJobs() {
                       <div className="flex space-x-2 ml-4">
                         <Link
                           href={`/lab/jobs/${caseItem.id}`}
-                          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                          className="btn-ghost px-4 py-2 hover:bg-white/5"
                         >
                           View Details
                         </Link>

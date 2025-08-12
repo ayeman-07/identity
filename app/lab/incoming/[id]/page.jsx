@@ -117,34 +117,34 @@ export default function LabCaseDetail() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'NEW': 'bg-yellow-100 text-yellow-800',
-      'ACCEPTED': 'bg-blue-100 text-blue-800',
-      'IN_PROGRESS': 'bg-orange-100 text-orange-800',
-      'READY': 'bg-green-100 text-green-800',
-      'DISPATCHED': 'bg-purple-100 text-purple-800',
-      'DELIVERED': 'bg-green-100 text-green-800',
-      'CANCELLED': 'bg-red-100 text-red-800',
-      'REJECTED': 'bg-red-100 text-red-800'
+      NEW: 'bg-blue-500/10 text-blue-200 border border-blue-400/20',
+      ACCEPTED: 'bg-blue-500/10 text-blue-200 border border-blue-400/20',
+      IN_PROGRESS: 'bg-yellow-500/10 text-yellow-200 border border-yellow-400/20',
+      READY: 'bg-purple-500/10 text-purple-200 border border-purple-400/20',
+      DISPATCHED: 'bg-indigo-500/10 text-indigo-200 border border-indigo-400/20',
+      DELIVERED: 'bg-green-500/10 text-green-200 border border-green-400/20',
+      CANCELLED: 'bg-red-500/10 text-red-200 border border-red-400/20',
+      REJECTED: 'bg-red-500/10 text-red-200 border border-red-400/20',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || 'bg-white/10 text-gray-200 border border-white/20';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading case details...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-400">Loading case details...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">{error}</div>
+          <div className="text-red-400 text-xl mb-4">{error}</div>
           <Link 
             href="/lab/incoming"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="btn-ghost px-4 py-2 hover:bg-white/5"
           >
             Back to Incoming Cases
           </Link>
@@ -155,12 +155,12 @@ export default function LabCaseDetail() {
 
   if (!caseItem) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-gray-600 text-xl mb-4">Case not found</div>
+          <div className="text-gray-400 text-xl mb-4">Case not found</div>
           <Link 
             href="/lab/incoming"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="btn-ghost px-4 py-2 hover:bg-white/5"
           >
             Back to Incoming Cases
           </Link>
@@ -170,22 +170,17 @@ export default function LabCaseDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Case Details</h1>
-              <p className="text-gray-600">Case ID: {caseItem.id}</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">Case Details</span></h1>
+              <p className="text-gray-400">Case ID: {caseItem.id}</p>
             </div>
             <div className="flex space-x-4">
-              <Link 
-                href="/lab/incoming"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                Back to Incoming Cases
-              </Link>
+              <Link href="/lab/incoming" className="btn-ghost px-4 py-2 hover:bg-white/5">Back to Incoming Cases</Link>
               <LogoutButton />
             </div>
           </div>
@@ -197,52 +192,52 @@ export default function LabCaseDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Case Information */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Case Information</h2>
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Case Information</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Title</label>
-                  <p className="mt-1 text-sm text-gray-900">{caseItem.title}</p>
+                  <label className="block text-sm font-medium text-gray-400">Title</label>
+                  <p className="mt-1 text-sm text-gray-100">{caseItem.title}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <label className="block text-sm font-medium text-gray-400">Status</label>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(caseItem.status)}`}>
                     {caseItem.status.replace('_', ' ')}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tooth Number</label>
-                  <p className="mt-1 text-sm text-gray-900">{caseItem.toothNumber || 'Not specified'}</p>
+                  <label className="block text-sm font-medium text-gray-400">Tooth Number</label>
+                  <p className="mt-1 text-sm text-gray-100">{caseItem.toothNumber || 'Not specified'}</p>
                 </div>
 
                 {caseItem.caseNotes && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Notes</label>
-                    <p className="mt-1 text-sm text-gray-900">{caseItem.caseNotes}</p>
+                    <label className="block text-sm font-medium text-gray-400">Notes</label>
+                    <p className="mt-1 text-sm text-gray-100">{caseItem.caseNotes}</p>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Created</label>
-                  <p className="mt-1 text-sm text-gray-900">
+                  <label className="block text-sm font-medium text-gray-400">Created</label>
+                  <p className="mt-1 text-sm text-gray-100">
                     {new Date(caseItem.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Updated</label>
-                  <p className="mt-1 text-sm text-gray-900">
+                  <label className="block text-sm font-medium text-gray-400">Last Updated</label>
+                  <p className="mt-1 text-sm text-gray-100">
                     {new Date(caseItem.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
 
                 {caseItem.clinic && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Clinic</label>
-                    <p className="mt-1 text-sm text-gray-900">{caseItem.clinic.name}</p>
+                    <label className="block text-sm font-medium text-gray-400">Clinic</label>
+                    <p className="mt-1 text-sm text-gray-100">{caseItem.clinic.name}</p>
                   </div>
                 )}
               </div>
@@ -253,14 +248,14 @@ export default function LabCaseDetail() {
                   <button
                     onClick={handleAcceptCase}
                     disabled={actionLoading}
-                    className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    className="w-full btn-gradient px-4 py-2 disabled:opacity-50"
                   >
                     {actionLoading ? 'Accepting...' : 'Accept Case'}
                   </button>
                   <button
                     onClick={handleRejectCase}
                     disabled={actionLoading}
-                    className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    className="w-full px-4 py-2 rounded-lg border border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                   >
                     {actionLoading ? 'Rejecting...' : 'Reject Case'}
                   </button>
@@ -271,8 +266,8 @@ export default function LabCaseDetail() {
 
           {/* Files Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Files & 3D Models</h2>
+            <div className="glass-card p-6">
+              <h2 className="text-xl font-semibold text-gray-100 mb-4">Files & 3D Models</h2>
               
               <FileList
                 files={caseItem.files || []}
