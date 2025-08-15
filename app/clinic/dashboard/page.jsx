@@ -65,18 +65,7 @@ export default function ClinicDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!dashboardData) {
+  if (!loading && !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -92,7 +81,12 @@ export default function ClinicDashboard() {
     );
   }
 
-  const { clinic, stats, recentCases, favoriteLabs, recommendedLabs, recentMessages } = dashboardData;
+  const clinic = dashboardData?.clinic;
+  const stats = dashboardData?.stats || {};
+  const recentCases = dashboardData?.recentCases || [];
+  const favoriteLabs = dashboardData?.favoriteLabs || [];
+  const recommendedLabs = dashboardData?.recommendedLabs || [];
+  const recentMessages = dashboardData?.recentMessages || [];
 
   return (
     <div className="min-h-screen">
@@ -102,7 +96,7 @@ export default function ClinicDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold"><span className="tx-gradient">Clinic Dashboard</span></h1>
-              <p className="text-gray-400">Welcome back, {clinic.name}</p>
+              <p className="text-gray-400">{loading ? <span className="inline-block h-4 w-40 rounded bg-white/10 animate-pulse" /> : <>Welcome back, {clinic?.name}</>}</p>
             </div>
             <div className="flex space-x-4">
               <Link
@@ -133,40 +127,61 @@ export default function ClinicDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatWidget
-            title="Total Cases"
-            value={stats.totalCases}
-            subtitle="All time"
-            icon="📋"
-            color="blue"
-          />
-          <StatWidget
-            title="Active Cases"
-            value={stats.activeCases}
-            subtitle="In progress"
-            icon="⚡"
-            color="yellow"
-          />
-          <StatWidget
-            title="Completed Cases"
-            value={stats.completedCases}
-            subtitle="Delivered"
-            icon="✅"
-            color="green"
-          />
-          <StatWidget
-            title="Favorite Labs"
-            value={favoriteLabs.length}
-            subtitle="Saved labs"
-            icon="⭐"
-            color="purple"
-          />
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="glass-card p-6 animate-pulse">
+                <div className="h-4 w-24 bg-white/10 rounded mb-4" />
+                <div className="h-8 w-16 bg-white/15 rounded mb-2" />
+                <div className="h-3 w-20 bg-white/10 rounded" />
+              </div>
+            ))
+          ) : (
+            <>
+              <StatWidget
+                title="Total Cases"
+                value={stats.totalCases}
+                subtitle="All time"
+                icon="📋"
+                color="blue"
+              />
+              <StatWidget
+                title="Active Cases"
+                value={stats.activeCases}
+                subtitle="In progress"
+                icon="⚡"
+                color="yellow"
+              />
+              <StatWidget
+                title="Completed Cases"
+                value={stats.completedCases}
+                subtitle="Delivered"
+                icon="✅"
+                color="green"
+              />
+              <StatWidget
+                title="Favorite Labs"
+                value={favoriteLabs.length}
+                subtitle="Saved labs"
+                icon="⭐"
+                color="purple"
+              />
+            </>
+          )}
         </div>
 
         {/* Status Breakdown */}
-        {stats.statusBreakdown && (
-          <div className="glass-card p-6 mb-8">
-            <h3 className="text-lg font-medium text-gray-100 mb-4">Case Status Breakdown</h3>
+        <div className="glass-card p-6 mb-8">
+          <h3 className="text-lg font-medium text-gray-100 mb-4">Case Status Breakdown</h3>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 animate-pulse">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="text-center space-y-2">
+                  <div className="h-6 w-8 bg-white/15 rounded mx-auto" />
+                  <div className="h-3 w-20 bg-white/10 rounded mx-auto" />
+                </div>
+              ))}
+            </div>
+          ) : stats.statusBreakdown ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
               {Object.entries(stats.statusBreakdown).map(([status, count]) => (
                 <div key={status} className="text-center">
@@ -175,8 +190,10 @@ export default function ClinicDashboard() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-400 text-sm">No status data.</p>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Cases */}
@@ -192,7 +209,17 @@ export default function ClinicDashboard() {
                 </Link>
               </div>
               
-              {recentCases && recentCases.length > 0 ? (
+              {loading ? (
+                <div className="space-y-4 animate-pulse">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="glass-card p-4 bg-white/5 border border-white/10">
+                      <div className="h-4 w-40 bg-white/10 rounded mb-3" />
+                      <div className="h-3 w-64 bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-24 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : recentCases && recentCases.length > 0 ? (
                 <div className="space-y-4">
                   {recentCases.map((caseData) => (
                     <CaseSummaryCard
@@ -222,7 +249,17 @@ export default function ClinicDashboard() {
           <div>
             <div className="glass-card p-6 mb-6">
               <h3 className="text-lg font-medium text-gray-100 mb-4">Recent Messages</h3>
-              {recentMessages && recentMessages.length > 0 ? (
+              {loading ? (
+                <div className="space-y-3 animate-pulse">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border-l-4 border-transparent pl-3 py-2">
+                      <div className="h-3 w-28 bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-52 bg-white/10 rounded mb-1" />
+                      <div className="h-3 w-24 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : recentMessages && recentMessages.length > 0 ? (
                 <div className="space-y-3">
                   {recentMessages.map((message) => (
                     <div key={message.id} className="border-l-4 border-blue-400 pl-3 py-2">
@@ -281,11 +318,22 @@ export default function ClinicDashboard() {
 
         {/* Favorite & Recommended Labs */}
         <div className="mt-8">
-          <FavoriteLabsList
-            favoriteLabs={favoriteLabs}
-            recommendedLabs={recommendedLabs}
-            onFavoriteChange={handleFavoriteChange}
-          />
+          {loading ? (
+            <div className="glass-card p-6 animate-pulse">
+              <div className="h-5 w-48 bg-white/10 rounded mb-6" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-24 bg-white/5 rounded-lg border border-white/10" />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <FavoriteLabsList
+              favoriteLabs={favoriteLabs}
+              recommendedLabs={recommendedLabs}
+              onFavoriteChange={handleFavoriteChange}
+            />
+          )}
         </div>
       </div>
     </div>

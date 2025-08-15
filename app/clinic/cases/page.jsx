@@ -111,41 +111,46 @@ export default function ClinicCases() {
     return matchesFilter && matchesSearch;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading cases...</p>
-        </div>
-      </div>
-    );
-  }
+  // Remove full-screen return; we'll show inline skeletons below
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center py-6 gap-6 md:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Cases</h1>
-              <p className="text-gray-600">Manage your dental cases</p>
+              <h1 className="text-3xl font-bold">
+                {loading ? <span className="inline-block h-8 w-48 bg-white/10 rounded animate-pulse" /> : <span className="tx-gradient">My Cases</span>}
+              </h1>
+              <p className="text-gray-400 mt-2">
+                {loading ? <span className="inline-block h-4 w-64 bg-white/5 rounded animate-pulse" /> : 'Manage and track all submitted cases'}
+              </p>
             </div>
-            <div className="flex space-x-4">
-              <Link 
-                href="/clinic/dashboard"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/clinic/upload-case"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Upload New Case
-              </Link>
-              <LogoutButton />
+            <div className="flex flex-wrap gap-3">
+              {loading ? (
+                <>
+                  <span className="h-10 w-32 bg-white/10 rounded animate-pulse" />
+                  <span className="h-10 w-40 bg-white/10 rounded animate-pulse" />
+                  <span className="h-10 w-12 bg-white/10 rounded animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <Link 
+                    href="/clinic/dashboard"
+                    className="btn-ghost px-4 py-2 hover:bg-white/5"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link 
+                    href="/clinic/upload-case"
+                    className="btn-gradient px-4 py-2"
+                  >
+                    + Upload New Case
+                  </Link>
+                  <LogoutButton />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -153,78 +158,99 @@ export default function ClinicCases() {
 
       {/* Filters */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search cases by title or tooth number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
+        <div className="glass-card p-6 mb-6">
+          {loading ? (
+            <div className="flex flex-col md:flex-row gap-4 animate-pulse">
+              <div className="flex-1 h-10 bg-white/10 rounded" />
+              <div className="h-10 w-52 bg-white/10 rounded" />
             </div>
-            <div>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="all">All Status</option>
-                <option value="NEW">New</option>
-                <option value="ACCEPTED">Accepted</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="READY">Ready</option>
-                <option value="DISPATCHED">Dispatched</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
+          ) : (
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search cases by title or tooth number..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full input-dark rounded-md px-3 py-2"
+                />
+              </div>
+              <div>
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="input-dark rounded-md px-3 py-2"
+                >
+                  <option value="all">All Status</option>
+                  <option value="NEW">New</option>
+                  <option value="ACCEPTED">Accepted</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="READY">Ready</option>
+                  <option value="DISPATCHED">Dispatched</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="CANCELLED">Cancelled</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Cases List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">
-              Cases ({filteredCases.length})
+        <div className="glass-card">
+          <div className="px-6 py-4 border-b border-white/10">
+            <h2 className="text-lg font-medium text-gray-100 flex items-center gap-2">
+              <span>Cases</span>
+              {loading ? (
+                <span className="inline-block h-5 w-10 bg-white/10 rounded animate-pulse" />
+              ) : (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">{filteredCases.length}</span>
+              )}
             </h2>
           </div>
-          
           <div className="p-6">
-            {filteredCases.length === 0 ? (
+            {loading ? (
+              <div className="space-y-4 animate-pulse">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="rounded-lg p-4 border border-white/10 bg-white/5">
+                    <div className="h-4 w-40 bg-white/10 rounded mb-3" />
+                    <div className="space-y-2">
+                      <div className="h-3 w-64 bg-white/10 rounded" />
+                      <div className="h-3 w-56 bg-white/10 rounded" />
+                      <div className="h-3 w-48 bg-white/10 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredCases.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">No cases found</p>
-                <Link 
-                  href="/clinic/upload-case"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
+                <p className="text-gray-400 mb-4">No cases found</p>
+                <Link href="/clinic/upload-case" className="btn-gradient px-4 py-2 inline-flex">
                   Upload Your First Case
                 </Link>
               </div>
             ) : (
               <div className="space-y-4">
                 {filteredCases.map((caseItem) => (
-                  <div key={caseItem.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={caseItem.id} className="rounded-lg p-4 border border-white/10 bg-white/5 hover:bg-white/10 transition">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="font-medium text-gray-900">{caseItem.title}</h3>
+                          <h3 className="font-medium text-gray-100">{caseItem.title}</h3>
                           <StatusBadge status={caseItem.status} size="sm" />
                         </div>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <p><strong>Tooth:</strong> {caseItem.toothNumber}</p>
-                          <p><strong>Created:</strong> {new Date(caseItem.createdAt).toLocaleDateString()}</p>
+                        <div className="text-sm text-gray-300 space-y-1">
+                          <p><span className="text-gray-400">Tooth:</span> {caseItem.toothNumber}</p>
+                          <p><span className="text-gray-400">Created:</span> {new Date(caseItem.createdAt).toLocaleDateString()}</p>
                           {caseItem.lab && (
-                            <p><strong>Lab:</strong> {caseItem.lab.name}</p>
+                            <p><span className="text-gray-400">Lab:</span> {caseItem.lab.name}</p>
                           )}
                           {caseItem.description && (
-                            <p><strong>Description:</strong> {caseItem.description}</p>
+                            <p><span className="text-gray-400">Description:</span> {caseItem.description}</p>
                           )}
-                          <p><strong>Files:</strong> {caseItem.files?.length || 0} uploaded</p>
+                          <p><span className="text-gray-400">Files:</span> {caseItem.files?.length || 0} uploaded</p>
                           {caseItem.messageCount > 0 && (
-                            <p><strong>Messages:</strong> {caseItem.messageCount}</p>
+                            <p><span className="text-gray-400">Messages:</span> {caseItem.messageCount}</p>
                           )}
                         </div>
                       </div>
@@ -232,14 +258,14 @@ export default function ClinicCases() {
                         {canCancelCase(caseItem.status) && (
                           <button
                             onClick={() => handleCancelCase(caseItem.id)}
-                            className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+                            className="px-3 py-1 rounded text-sm border border-red-400/40 text-red-300 hover:bg-red-500/15 hover:border-red-400/60 focus:outline-none focus:ring-2 focus:ring-red-500/40 transition-colors"
                           >
                             Cancel
                           </button>
                         )}
                         <Link
                           href={`/clinic/cases/${caseItem.id}`}
-                          className="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700 transition-colors"
+                          className="btn-ghost px-3 py-1 text-sm hover:bg-white/10"
                         >
                           View
                         </Link>

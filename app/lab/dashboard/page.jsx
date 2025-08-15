@@ -57,18 +57,7 @@ export default function LabDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!dashboardData) {
+  if (!loading && !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -84,7 +73,13 @@ export default function LabDashboard() {
     );
   }
 
-  const { lab, stats, activeJobs, incomingCases, recentEarnings, recentReviews, recentMessages } = dashboardData;
+  const lab = dashboardData?.lab;
+  const stats = dashboardData?.stats || {};
+  const activeJobs = dashboardData?.activeJobs || [];
+  const incomingCases = dashboardData?.incomingCases || [];
+  const recentEarnings = dashboardData?.recentEarnings || [];
+  const recentReviews = dashboardData?.recentReviews || [];
+  const recentMessages = dashboardData?.recentMessages || [];
 
   return (
     <div className="min-h-screen">
@@ -94,8 +89,8 @@ export default function LabDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold"><span className="tx-gradient">Lab Dashboard</span></h1>
-              <p className="text-gray-400">Welcome back, {lab.name}</p>
-              {lab.rating > 0 && (
+              <p className="text-gray-400">{loading ? <span className="inline-block h-4 w-44 rounded bg-white/10 animate-pulse" /> : <>Welcome back, {lab?.name}</>}</p>
+              {!loading && lab?.rating > 0 && (
                 <div className="flex items-center mt-1">
                   <svg className="w-4 h-4 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -119,47 +114,38 @@ export default function LabDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <StatWidget
-            title="Total Jobs"
-            value={stats.totalJobs}
-            subtitle="All time"
-            icon="🔨"
-            color="blue"
-          />
-          <StatWidget
-            title="Pending"
-            value={stats.pendingJobs}
-            subtitle="Available to accept"
-            icon="⏳"
-            color="yellow"
-          />
-          <StatWidget
-            title="In Progress"
-            value={stats.inProgressJobs}
-            subtitle="Active work"
-            icon="⚡"
-            color="purple"
-          />
-          <StatWidget
-            title="Completed"
-            value={stats.completedJobs}
-            subtitle="Delivered"
-            icon="✅"
-            color="green"
-          />
-          <StatWidget
-            title="Avg. Turnaround"
-            value={`${stats.averageTurnaroundDays || 0}d`}
-            subtitle="Days to complete"
-            icon="📊"
-            color="indigo"
-          />
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="glass-card p-6 animate-pulse">
+                <div className="h-4 w-28 bg-white/10 rounded mb-4" />
+                <div className="h-8 w-16 bg-white/15 rounded mb-2" />
+                <div className="h-3 w-24 bg-white/10 rounded" />
+              </div>
+            ))
+          ) : (
+            <>
+              <StatWidget title="Total Jobs" value={stats.totalJobs} subtitle="All time" icon="🔨" color="blue" />
+              <StatWidget title="Pending" value={stats.pendingJobs} subtitle="Available to accept" icon="⏳" color="yellow" />
+              <StatWidget title="In Progress" value={stats.inProgressJobs} subtitle="Active work" icon="⚡" color="purple" />
+              <StatWidget title="Completed" value={stats.completedJobs} subtitle="Delivered" icon="✅" color="green" />
+              <StatWidget title="Avg. Turnaround" value={`${stats.averageTurnaroundDays || 0}d`} subtitle="Days to complete" icon="📊" color="indigo" />
+            </>
+          )}
         </div>
 
         {/* Status Breakdown */}
-        {stats.statusBreakdown && (
-          <div className="glass-card p-6 mb-8">
-            <h3 className="text-lg font-medium text-gray-100 mb-4">Job Status Overview</h3>
+        <div className="glass-card p-6 mb-8">
+          <h3 className="text-lg font-medium text-gray-100 mb-4">Job Status Overview</h3>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 animate-pulse">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="text-center space-y-2">
+                  <div className="h-6 w-8 bg-white/15 rounded mx-auto" />
+                  <div className="h-3 w-20 bg-white/10 rounded mx-auto" />
+                </div>
+              ))}
+            </div>
+          ) : stats.statusBreakdown ? (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
               {Object.entries(stats.statusBreakdown).map(([status, count]) => (
                 <div key={status} className="text-center">
@@ -168,8 +154,10 @@ export default function LabDashboard() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-400 text-sm">No status data.</p>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Active Jobs */}
@@ -185,7 +173,17 @@ export default function LabDashboard() {
                 </Link>
               </div>
               
-              {activeJobs && activeJobs.length > 0 ? (
+              {loading ? (
+                <div className="space-y-4 animate-pulse">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="glass-card p-4 bg-white/5 border border-white/10">
+                      <div className="h-4 w-48 bg-white/10 rounded mb-3" />
+                      <div className="h-3 w-64 bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-28 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : activeJobs && activeJobs.length > 0 ? (
                 <div className="space-y-4">
                   {activeJobs.map((job) => (
                     <CaseSummaryCard
@@ -211,7 +209,7 @@ export default function LabDashboard() {
             </div>
 
             {/* Incoming Cases Preview */}
-            {incomingCases && incomingCases.length > 0 && (
+            {!loading && incomingCases && incomingCases.length > 0 && (
               <div className="glass-card p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-medium text-gray-100">Available Cases</h3>
@@ -251,15 +249,36 @@ export default function LabDashboard() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Revenue Widget */}
-            <RevenueWidget
-              totalEarnings={stats.totalEarnings || 0}
-              recentEarnings={recentEarnings || []}
-            />
+            {loading ? (
+              <div className="glass-card p-6 animate-pulse">
+                <div className="h-5 w-40 bg-white/10 rounded mb-4" />
+                <div className="space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="h-3 w-full bg-white/5 rounded" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <RevenueWidget
+                totalEarnings={stats.totalEarnings || 0}
+                recentEarnings={recentEarnings || []}
+              />
+            )}
 
             {/* Recent Messages */}
             <div className="glass-card p-6">
               <h3 className="text-lg font-medium text-gray-100 mb-4">Recent Messages</h3>
-              {recentMessages && recentMessages.length > 0 ? (
+              {loading ? (
+                <div className="space-y-3 animate-pulse">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border-l-4 border-transparent pl-3 py-2">
+                      <div className="h-3 w-32 bg-white/10 rounded mb-2" />
+                      <div className="h-3 w-56 bg-white/10 rounded mb-1" />
+                      <div className="h-3 w-24 bg-white/10 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : recentMessages && recentMessages.length > 0 ? (
                 <div className="space-y-3">
                   {recentMessages.map((message) => (
                     <div key={message.id} className="border-l-4 border-green-400 pl-3 py-2">
@@ -290,7 +309,7 @@ export default function LabDashboard() {
             </div>
 
             {/* Reviews Summary */}
-            {recentReviews && recentReviews.length > 0 && (
+            {!loading && recentReviews && recentReviews.length > 0 && (
               <div className="glass-card p-6">
                 <h3 className="text-lg font-medium text-gray-100 mb-4">Recent Reviews</h3>
                 <div className="space-y-3">
