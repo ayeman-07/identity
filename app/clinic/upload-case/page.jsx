@@ -23,6 +23,13 @@ function UploadCaseContent() {
   const [selectedLabName, setSelectedLabName] = useState('');
   const [isLabFixed, setIsLabFixed] = useState(false); // New state to track if lab is fixed
   const [errors, setErrors] = useState({});
+  const [cloudUploads, setCloudUploads] = useState([]); // list of uploaded file records
+  // Cloudinary client config (public vars only). Ensure NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME & NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET are set.
+  const cloudConfig = {
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    unsignedPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
+    uploadEndpoint: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload` : null
+  };
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -307,12 +314,66 @@ function UploadCaseContent() {
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold tracking-wide text-gray-200 uppercase">Upload Files</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">Add STL, images & docs. Uploading will auto-save.</p>
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept=".stl,.pdf,.png,.jpg,.jpeg"
+                      multiple
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (!files.length) return;
+                        for (const file of files) {
+                          if (file.size > 80 * 1024 * 1024) { // 80MB client limit
+                            toast.error(`${file.name} too large (>80MB)`);
+                            continue;
+                          }
+                          const form = new FormData();
+                          form.append('file', file);
+                          if (cloudConfig.unsignedPreset) form.append('upload_preset', cloudConfig.unsignedPreset);
+                          try {
+                            const res = await fetch(cloudConfig.uploadEndpoint, { method: 'POST', body: form });
+                            const json = await res.json();
+                            if (!res.ok || json.error) {
+                              toast.error(`Cloud upload failed: ${file.name}`);
+                              continue;
+                            }
+                            // Persist metadata to backend (simple endpoint reuse: create File record)
+                            const token = localStorage.getItem('token');
+                            const metaRes = await fetch(`/api/files/cloudinary?caseId=${caseId}`, {
+                              method: 'POST',
+                              headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                originalName: file.name,
+                                fileType: file.type || 'application/octet-stream',
+                                fileSize: file.size,
+                                fileUrl: json.secure_url,
+                                publicId: json.public_id
+                              })
+                            });
+                            const metaJson = await metaRes.json();
+                            if (!metaRes.ok) {
+                              toast.error(metaJson.error || 'Metadata save failed');
+                              continue;
+                            }
+                            toast.success(`Uploaded ${file.name}`);
+                            setCloudUploads(prev => [...prev, metaJson.file]);
+                          } catch (err) {
+                            console.error(err);
+                            toast.error(`Upload error: ${file.name}`);
+                          }
+                        }
+                        e.target.value = '';
+                      }}
+                      className="block w-full text-[11px] text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-indigo-500/10 file:text-indigo-300 hover:file:bg-indigo-500/20"
+                    />
+                    <p className="text-[10px] text-gray-500">Direct Cloudinary upload. Limit 80MB per file.</p>
+                  </div>
                   <div className="rounded-md border border-indigo-400/20 bg-indigo-500/5 p-3">
                     <FileList
-                      files={[]}
+                      files={cloudUploads}
                       caseId={caseId}
                       onFileUpload={handleFileUpload}
-                      canUpload={true}
+                      canUpload={false} // hide legacy local uploader (using Cloudinary direct uploads above)
                     />
                   </div>
                 </div>

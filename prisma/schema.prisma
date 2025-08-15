@@ -93,6 +93,7 @@ model File {
   filename   String
   originalName String
   filePath   String
+  fileUrl    String?  // Cloud storage URL (e.g., Cloudinary secure_url)
   fileType   String
   fileSize   Int
   caseId     String

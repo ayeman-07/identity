@@ -84,28 +84,34 @@ export default function FileList({ files, caseId, onFileUpload, canUpload = fals
     }
   };
 
-  const handleDownload = async (fileId, originalName) => {
+  const handleDownload = async (fileId, originalName, directUrl) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/files/${fileId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+      if (directUrl) {
         const a = document.createElement('a');
-        a.href = url;
+        a.href = directUrl;
         a.download = originalName;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-      } else {
-        toast.error('Failed to download file');
+        return;
       }
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/files/${fileId}/download`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) {
+        toast.error('Failed to download file');
+        return;
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading file:', error);
       toast.error('Error downloading file');
@@ -128,21 +134,23 @@ export default function FileList({ files, caseId, onFileUpload, canUpload = fals
         return;
       }
 
-      const response = await fetch(`/api/files/${file.id}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      let blobUrl;
+      if (file.fileUrl && file.fileUrl.startsWith('http')) {
+        // Use direct Cloudinary URL
+        blobUrl = file.fileUrl;
+      } else {
+        const response = await fetch(`/api/files/${file.id}/download`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          const errorData = await response.text();
+            console.error('Failed to load file:', response.status, errorData);
+            toast.error(`Failed to load file for viewing. Status: ${response.status}`);
+            return;
         }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Failed to load file:', response.status, errorData);
-        toast.error(`Failed to load file for viewing. Status: ${response.status}`);
-        return;
+        const blob = await response.blob();
+        blobUrl = window.URL.createObjectURL(blob);
       }
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
       
       if (isSTL) {
         setViewingSTL({
@@ -281,7 +289,7 @@ export default function FileList({ files, caseId, onFileUpload, canUpload = fals
                     </button>
                   )}
                   <button
-                    onClick={() => handleDownload(file.id, file.originalName)}
+                    onClick={() => handleDownload(file.id, file.originalName, file.fileUrl)}
                     className="text-green-600 hover:text-green-800 text-sm font-medium"
                   >
                     📥 Download

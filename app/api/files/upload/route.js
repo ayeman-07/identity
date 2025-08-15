@@ -152,6 +152,7 @@ export async function POST(request) {
             filename: fileData.filename,
             originalName: fileData.originalName,
             filePath: fileData.filePath,
+            fileUrl: fileData.filePath, // treat current local path as URL for compatibility
             fileType: fileData.fileType,
             fileSize: fileData.fileSize,
             caseId: caseId
