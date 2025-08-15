@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "i-Dentity - Dental Clinic to Lab Platform",
   description: "Connect dental clinics and labs digitally for seamless case management and 3D file sharing",
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg'
+  }
 };
 
 export default function RootLayout({ children }) {

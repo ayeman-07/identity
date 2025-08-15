@@ -11,6 +11,9 @@ export default function ClinicCases() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAGE_SIZE = 5;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -111,6 +114,20 @@ export default function ClinicCases() {
     return matchesFilter && matchesSearch;
   });
 
+  // Reset / clamp page when dependencies change
+  const totalPages = Math.max(1, Math.ceil(filteredCases.length / PAGE_SIZE));
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchTerm]);
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const paginatedCases = filteredCases.slice(startIndex, startIndex + PAGE_SIZE);
+
   // Remove full-screen return; we'll show inline skeletons below
 
   return (
@@ -121,20 +138,14 @@ export default function ClinicCases() {
           <div className="flex flex-col md:flex-row md:justify-between md:items-center py-6 gap-6 md:gap-0">
             <div>
               <h1 className="text-3xl font-bold">
-                {loading ? <span className="inline-block h-8 w-48 bg-white/10 rounded animate-pulse" /> : <span className="tx-gradient">My Cases</span>}
+                <span className="tx-gradient">My Cases</span>
               </h1>
               <p className="text-gray-400 mt-2">
-                {loading ? <span className="inline-block h-4 w-64 bg-white/5 rounded animate-pulse" /> : 'Manage and track all submitted cases'}
+                Manage and track all submitted cases
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              {loading ? (
-                <>
-                  <span className="h-10 w-32 bg-white/10 rounded animate-pulse" />
-                  <span className="h-10 w-40 bg-white/10 rounded animate-pulse" />
-                  <span className="h-10 w-12 bg-white/10 rounded animate-pulse" />
-                </>
-              ) : (
+              
                 <>
                   <Link 
                     href="/clinic/dashboard"
@@ -150,7 +161,6 @@ export default function ClinicCases() {
                   </Link>
                   <LogoutButton />
                 </>
-              )}
             </div>
           </div>
         </div>
@@ -159,40 +169,42 @@ export default function ClinicCases() {
       {/* Filters */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="glass-card p-6 mb-6">
-          {loading ? (
-            <div className="flex flex-col md:flex-row gap-4 animate-pulse">
-              <div className="flex-1 h-10 bg-white/10 rounded" />
-              <div className="h-10 w-52 bg-white/10 rounded" />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search cases by title or tooth number..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                disabled={loading}
+                className={`w-full input-dark rounded-md px-3 py-2 ${loading ? 'opacity-60 cursor-wait' : ''}`}
+              />
+              {loading && <span className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-indigo-400/60 animate-pulse" />}
             </div>
-          ) : (
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Search cases by title or tooth number..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full input-dark rounded-md px-3 py-2"
-                />
-              </div>
-              <div>
-                <select
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  className="input-dark rounded-md px-3 py-2"
-                >
-                  <option value="all">All Status</option>
-                  <option value="NEW">New</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="READY">Ready</option>
-                  <option value="DISPATCHED">Dispatched</option>
-                  <option value="DELIVERED">Delivered</option>
-                  <option value="CANCELLED">Cancelled</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-              </div>
+            <div className="relative">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                disabled={loading}
+                className={`input-dark rounded-md px-3 py-2 pr-8 ${loading ? 'opacity-60 cursor-wait' : ''}`}
+              >
+                <option value="all">All Status</option>
+                <option value="NEW">New</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="READY">Ready</option>
+                <option value="DISPATCHED">Dispatched</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+              {loading && <span className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-indigo-400/60 animate-pulse" />}
             </div>
+          </div>
+          {loading && (
+            <p className="mt-3 text-[11px] tracking-wide text-gray-500 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" /> Loading cases…
+            </p>
           )}
         </div>
 
@@ -201,24 +213,26 @@ export default function ClinicCases() {
           <div className="px-6 py-4 border-b border-white/10">
             <h2 className="text-lg font-medium text-gray-100 flex items-center gap-2">
               <span>Cases</span>
-              {loading ? (
-                <span className="inline-block h-5 w-10 bg-white/10 rounded animate-pulse" />
-              ) : (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">{filteredCases.length}</span>
-              )}
+              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300 min-w-[2rem] text-center">
+                {loading ? '…' : filteredCases.length}
+              </span>
             </h2>
           </div>
           <div className="p-6">
             {loading ? (
-              <div className="space-y-4 animate-pulse">
+              <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="rounded-lg p-4 border border-white/10 bg-white/5">
-                    <div className="h-4 w-40 bg-white/10 rounded mb-3" />
-                    <div className="space-y-2">
+                  <div key={i} className="rounded-lg p-4 border border-white/10 bg-white/5 relative overflow-hidden">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="h-4 w-40 bg-white/10 rounded" />
+                      <div className="h-4 w-14 bg-white/10 rounded" />
+                    </div>
+                    <div className="space-y-2 text-xs">
                       <div className="h-3 w-64 bg-white/10 rounded" />
                       <div className="h-3 w-56 bg-white/10 rounded" />
                       <div className="h-3 w-48 bg-white/10 rounded" />
                     </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_1.4s_infinite]" style={{backgroundSize:'200% 100%'}} />
                   </div>
                 ))}
               </div>
@@ -231,7 +245,7 @@ export default function ClinicCases() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredCases.map((caseItem) => (
+                {paginatedCases.map((caseItem) => (
                   <div key={caseItem.id} className="rounded-lg p-4 border border-white/10 bg-white/5 hover:bg-white/10 transition">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -273,6 +287,42 @@ export default function ClinicCases() {
                     </div>
                   </div>
                 ))}
+                {/* Pagination Controls */}
+                {filteredCases.length > 0 && (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10">
+                    <p className="text-xs text-gray-500 tracking-wide">
+                      Showing <span className="text-gray-300">{filteredCases.length === 0 ? 0 : startIndex + 1}</span>–<span className="text-gray-300">{Math.min(startIndex + PAGE_SIZE, filteredCases.length)}</span> of <span className="text-gray-300">{filteredCases.length}</span>
+                    </p>
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={currentPage === 1}
+                          className="px-3 py-1 rounded-md text-xs border border-white/10 text-gray-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >Prev</button>
+                        {Array.from({ length: totalPages }).map((_, i) => {
+                          const page = i + 1;
+                          const active = page === currentPage;
+                          return (
+                            <button
+                              key={page}
+                              type="button"
+                              onClick={() => setCurrentPage(page)}
+                              className={`px-3 py-1 rounded-md text-xs border transition ${active ? 'border-indigo-400/60 bg-indigo-500/20 text-indigo-200' : 'border-white/10 text-gray-300 hover:bg-white/10'}`}
+                            >{page}</button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-1 rounded-md text-xs border border-white/10 text-gray-300 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >Next</button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -118,6 +118,13 @@ export default function ClinicDashboard() {
                 View All Cases
               </Link>
               <LogoutButton />
+              <Link
+                href="/clinic/profile"
+                className="btn-ghost w-10 h-10 flex items-center justify-center rounded-md hover:bg-white/5 relative"
+                aria-label="Profile"
+              >
+                <svg className="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 21a8 8 0 0116 0" /></svg>
+              </Link>
             </div>
           </div>
         </div>

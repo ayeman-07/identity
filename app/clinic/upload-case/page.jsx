@@ -6,6 +6,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import FileList from '../../../components/FileList';
 import LogoutButton from '../../../components/LogoutButton';
+import { validateUploadCase } from '../../../utils/caseSchemas';
 
 function UploadCaseContent() {
   const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ function UploadCaseContent() {
   const [labsLoading, setLabsLoading] = useState(true);
   const [selectedLabName, setSelectedLabName] = useState('');
   const [isLabFixed, setIsLabFixed] = useState(false); // New state to track if lab is fixed
+  const [errors, setErrors] = useState({});
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -76,6 +78,16 @@ function UploadCaseContent() {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setErrors({});
+
+    // Validation
+    const validation = validateUploadCase(formData);
+    if (!validation.success) {
+      setErrors(validation.errors);
+      setLoading(false);
+      setMessage('Please correct the highlighted fields.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -124,19 +136,19 @@ function UploadCaseContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center py-6 gap-6 md:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Upload New Case</h1>
-              <p className="text-gray-600">Submit a new dental case to labs</p>
+              <h1 className="text-3xl font-bold"><span className="tx-gradient">Upload New Case</span></h1>
+              <p className="text-gray-400 text-sm md:text-base">Create a case, optionally assign a lab, then upload STL & supporting assets.</p>
             </div>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-3">
               <Link 
                 href="/clinic/cases"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="btn-ghost px-4 py-2 hover:bg-white/5"
               >
                 Back to Cases
               </Link>
@@ -146,181 +158,178 @@ function UploadCaseContent() {
         </div>
       </div>
 
-      {/* Form */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">Case Information</h2>
-          </div>
-          
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Lab Assignment Banner */}
-            {selectedLabName && isLabFixed && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">
-                      🔒 Lab Assignment Locked
-                    </h3>
-                    <div className="mt-1 text-sm text-blue-700">
-                      <p>This case is assigned to <strong>{selectedLabName}</strong> and cannot be changed. You selected this lab specifically for this case.</p>
-                    </div>
-                  </div>
+      {/* Form (Refactored Layout) */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="glass-card rounded-xl overflow-hidden">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3">
+            {/* Main Column */}
+            <div className="p-6 space-y-10 lg:col-span-2">
+              <div className="flex items-start justify-between flex-wrap gap-4">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-100 tracking-wide">Primary Details</h2>
+                  <p className="mt-1 text-[12px] text-gray-500 max-w-sm">Provide minimal required info. You can attach files once the case exists.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {caseId && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-400/30 text-emerald-300 bg-emerald-500/10 inline-flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" /> Draft Saved
+                    </span>
+                  )}
+                  {selectedLabName && (
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium border inline-flex items-center gap-1 ${isLabFixed ? 'border-indigo-400/30 text-indigo-300 bg-indigo-500/10' : 'border-emerald-400/30 text-emerald-300 bg-emerald-500/10'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isLabFixed ? 'bg-indigo-300' : 'bg-emerald-300'} animate-pulse`} />
+                      {isLabFixed ? 'Lab Locked' : 'Lab Pre-selected'}
+                    </span>
+                  )}
                 </div>
               </div>
-            )}
 
-            {selectedLabName && !isLabFixed && (
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-indigo-800">
-                      Lab Pre-selected
-                    </h3>
-                    <div className="mt-1 text-sm text-indigo-700">
-                      <p>This case will be assigned to <strong>{selectedLabName}</strong>. You can change the lab assignment below if needed.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+              {message && (
+                <div className={`p-4 rounded-md text-xs font-medium border leading-relaxed ${
+                  message.includes('successfully')
+                    ? 'bg-emerald-500/10 border-emerald-400/30 text-emerald-200'
+                    : 'bg-rose-500/10 border-rose-400/30 text-rose-200'
+                }`}>{message}</div>
+              )}
 
-            {message && (
-              <div className={`p-4 rounded-lg ${
-                message.includes('successfully') 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {message}
-              </div>
-            )}
-
-            {/* Case Title */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Case Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="e.g., Crown Case #001"
-                required
-              />
-            </div>
-
-            {/* Tooth Number */}
-            <div>
-              <label htmlFor="toothNumber" className="block text-sm font-medium text-gray-700">
-                Tooth Number(s)
-              </label>
-              <input
-                type="text"
-                id="toothNumber"
-                value={formData.toothNumber}
-                onChange={(e) => setFormData({...formData, toothNumber: e.target.value})}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="e.g., 14 or Multiple"
-                required
-              />
-            </div>
-
-            {/* Case Notes */}
-            <div>
-              <label htmlFor="caseNotes" className="block text-sm font-medium text-gray-700">
-                Case Notes
-              </label>
-              <textarea
-                id="caseNotes"
-                rows={4}
-                value={formData.caseNotes}
-                onChange={(e) => setFormData({...formData, caseNotes: e.target.value})}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Describe the case requirements, patient notes, etc."
-              />
-            </div>
-
-            {/* File Upload Section - Only show after case is created */}
-            {caseId && (
-              <div className="mt-8 p-6 bg-blue-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Upload Files</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Now you can upload STL files, images, and supporting documents for this case.
-                </p>
-                <FileList 
-                  files={[]} 
-                  caseId={caseId} 
-                  onFileUpload={handleFileUpload}
-                  canUpload={true}
+              {/* Title */}
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">Case Title <span className="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className={`input-dark w-full ${errors.title ? 'ring-1 ring-rose-400/60' : ''}`}
+                  placeholder="e.g., Single Crown #001"
+                  required
                 />
+                {errors.title && <p className="mt-1 text-xs text-rose-300">{errors.title}</p>}
               </div>
-            )}
 
-            {/* Lab Assignment (Optional) */}
-            <div>
-              <label htmlFor="labId" className="block text-sm font-medium text-gray-700">
-                Assign to Specific Lab (Optional)
-                {selectedLabName && (
-                  <span className={`ml-2 text-sm font-normal ${isLabFixed ? 'text-blue-600' : 'text-indigo-600'}`}>
-                    • {selectedLabName} {isLabFixed ? '(locked)' : 'pre-selected'}
-                  </span>
-                )}
-              </label>
-              <select
-                id="labId"
-                value={formData.labId}
-                onChange={(e) => {
-                  setFormData({...formData, labId: e.target.value});
-                  const selectedLab = labs.find(lab => lab.id === e.target.value);
-                  setSelectedLabName(selectedLab ? selectedLab.name : '');
-                }}
-                className={`mt-1 block w-full border rounded-md px-3 py-2 focus:outline-none ${
-                  isLabFixed 
-                    ? 'border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed' 
-                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
-                }`}
-                disabled={labsLoading || isLabFixed}
-              >
-                <option value="">Leave unassigned (labs can accept)</option>
-                {labs.map((lab) => (
-                  <option key={lab.id} value={lab.id}>
-                    {lab.name} - {lab.location} ({lab.turnaroundTime} days)
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-sm text-gray-500">
-                {labsLoading 
-                  ? 'Loading available labs...' 
-                  : isLabFixed && selectedLabName
-                    ? `🔒 Case is locked to ${selectedLabName}. This cannot be changed as you selected this lab specifically.`
-                    : selectedLabName
-                      ? `Case will be assigned directly to ${selectedLabName}. You can change this selection if needed.`
-                      : 'Leave unassigned to let labs accept the case, or assign to a specific lab.'
-                }
-              </p>
+              {/* Tooth & Lab */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <label htmlFor="toothNumber" className="block text-sm font-medium text-gray-300 mb-1">Tooth Number(s) <span className="text-rose-400">*</span></label>
+                  <input
+                    type="text"
+                    id="toothNumber"
+                    value={formData.toothNumber}
+                    onChange={(e) => setFormData({...formData, toothNumber: e.target.value})}
+                    className={`input-dark w-full ${errors.toothNumber ? 'ring-1 ring-rose-400/60' : ''}`}
+                    placeholder="e.g., 14 or Multiple"
+                    required
+                  />
+                  {errors.toothNumber && <p className="mt-1 text-xs text-rose-300">{errors.toothNumber}</p>}
+                </div>
+                <div>
+                  <label htmlFor="labId" className="block text-sm font-medium text-gray-300 mb-1">Assign Lab (Optional)</label>
+                  <select
+                    id="labId"
+                    value={formData.labId}
+                    onChange={(e) => {
+                      setFormData({...formData, labId: e.target.value});
+                      const selectedLab = labs.find(lab => lab.id === e.target.value);
+                      setSelectedLabName(selectedLab ? selectedLab.name : '');
+                    }}
+                    className={`input-dark w-full pr-8 ${isLabFixed ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    disabled={labsLoading || isLabFixed}
+                  >
+                    <option value="">Unassigned (open to labs)</option>
+                    {labs.map((lab) => (
+                      <option key={lab.id} value={lab.id} className="bg-slate-800">
+                        {lab.name} – {lab.location} ({lab.turnaroundTime}d)
+                      </option>
+                    ))}
+                  </select>
+                  {errors.labId && <p className="mt-1 text-xs text-rose-300">{errors.labId}</p>}
+                  <p className="mt-2 text-xs text-gray-500">
+                    {labsLoading 
+                      ? 'Loading labs…'
+                      : isLabFixed && selectedLabName
+                        ? `🔒 Locked to ${selectedLabName}`
+                        : selectedLabName
+                          ? `Will assign directly to ${selectedLabName}`
+                          : 'Leave unassigned to let any qualified lab accept.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="caseNotes" className="block text-sm font-medium text-gray-300">Case Notes</label>
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500">Optional</span>
+                </div>
+                <textarea
+                  id="caseNotes"
+                  rows={4}
+                  value={formData.caseNotes}
+                  onChange={(e) => setFormData({...formData, caseNotes: e.target.value})}
+                  className={`input-dark w-full min-h-[140px] resize-y ${errors.caseNotes ? 'ring-1 ring-rose-400/60' : ''}`}
+                  placeholder="Materials, shade, margin, instructions..."/>
+                {errors.caseNotes && <p className="mt-1 text-xs text-rose-300">{errors.caseNotes}</p>}
+              </div>
+
+              {/* Action */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-gradient px-8 py-3 rounded-lg text-sm font-medium tracking-wide flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading && <span className="h-4 w-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />}
+                  <span>{loading ? 'Creating...' : caseId ? 'Update Case' : 'Create Case'}</span>
+                </button>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
-              >
-                {loading ? 'Uploading...' : 'Upload Case'}
-              </button>
+            {/* Sidebar */}
+            <div className="border-t lg:border-t-0 lg:border-l border-white/10 p-6 space-y-8 bg-white/5/5 backdrop-blur-sm">
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold tracking-wide text-gray-200 uppercase">Case Summary</h3>
+                <ul className="text-xs text-gray-400 space-y-2">
+                  <li><span className="text-gray-500">Title:</span> {formData.title || <span className="text-gray-600 italic">(not set)</span>}</li>
+                  <li><span className="text-gray-500">Tooth:</span> {formData.toothNumber || <span className="text-gray-600 italic">(none)</span>}</li>
+                  <li><span className="text-gray-500">Lab:</span> {selectedLabName ? selectedLabName : <span className="text-gray-600 italic">Unassigned</span>}</li>
+                  <li><span className="text-gray-500">Files:</span> {caseId ? 'Pending Upload' : '—'}</li>
+                </ul>
+              </div>
+              {labsLoading && !selectedLabName && (
+                <div className="space-y-2">
+                  <div className="h-3 w-24 bg-white/5 rounded animate-pulse" />
+                  <div className="grid grid-cols-3 gap-2 animate-pulse">
+                    {[...Array(3)].map((_,i)=>(<div key={i} className="h-8 bg-white/5 rounded" />))}
+                  </div>
+                </div>
+              )}
+              {caseId && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold tracking-wide text-gray-200 uppercase">Upload Files</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">Add STL, images & docs. Uploading will auto-save.</p>
+                  <div className="rounded-md border border-indigo-400/20 bg-indigo-500/5 p-3">
+                    <FileList
+                      files={[]}
+                      caseId={caseId}
+                      onFileUpload={handleFileUpload}
+                      canUpload={true}
+                    />
+                  </div>
+                </div>
+              )}
+              {!caseId && (
+                <div className="text-xs text-gray-500 leading-relaxed">
+                  After creating the case you can upload STL & supporting files here.
+                </div>
+              )}
+              <div className="pt-4 border-t border-white/10 space-y-3">
+                <h4 className="text-xs font-semibold tracking-wide text-gray-400 uppercase">Tips</h4>
+                <ul className="text-[11px] text-gray-500 space-y-2 list-disc list-inside">
+                  <li>Use clear tooth numbering (FDI/Universal).</li>
+                  <li>Add material & shade in notes.</li>
+                  <li>Assign a lab only to lock routing.</li>
+                </ul>
+              </div>
             </div>
           </form>
         </div>
@@ -332,10 +341,10 @@ function UploadCaseContent() {
 export default function UploadCase() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
+        <div className="glass-card px-8 py-6 rounded-xl flex flex-col items-center border border-white/10">
+          <div className="h-12 w-12 rounded-full border-2 border-indigo-400/30 border-t-indigo-500 animate-spin mb-4" />
+          <p className="text-sm text-slate-400 tracking-wide">Loading Upload Form</p>
         </div>
       </div>
     }>

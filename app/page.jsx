@@ -58,8 +58,8 @@ export default function Home() {
               <div className="absolute -inset-4 rounded-2xl bg-[conic-gradient(from_180deg_at_50%_50%,rgba(99,102,241,0.15),transparent_30%)] blur-xl" />
               <div className="relative glass-card p-2 rounded-2xl">
                 <Image
-                  src="/hero-illustration.svg"
-                  alt="Dental collaboration illustration"
+                  src="/hero-dental.svg"
+                  alt="Dental collaboration platform illustration: central tooth connected to labs, clinics, chat, STL and map"
                   width={1100}
                   height={760}
                   priority
