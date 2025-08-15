@@ -12,7 +12,8 @@ export default function LabCard({
   onSendCase, 
   onViewProfile, 
   size = 'normal',
-  onFavoriteToggle
+  onFavoriteToggle,
+  distanceKm
 }) {
   const [imageError, setImageError] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
@@ -141,10 +142,16 @@ export default function LabCard({
             
             <div>
               <h3 className={`${titleSize} font-semibold text-gray-900`}>{lab.name}</h3>
-              {lab.location && (
-                <p className="text-sm text-gray-500 flex items-center">
-                  <span className="mr-1">📍</span>
-                  {lab.location}
+              {(lab.location || distanceKm != null) && (
+                <p className="text-sm text-gray-500 flex items-center flex-wrap gap-x-2 gap-y-1">
+                  {lab.location && (
+                    <span className="flex items-center"><span className="mr-1">📍</span>{lab.location}</span>
+                  )}
+                  {distanceKm != null && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">
+                      {distanceKm} km
+                    </span>
+                  )}
                 </p>
               )}
             </div>

@@ -28,6 +28,8 @@ export async function GET(request) {
             services: true,
             turnaroundTime: true,
             location: true,
+            latitude: true,
+            longitude: true,
             rating: true,
             specialties: true,
             logo: true
@@ -49,6 +51,8 @@ export async function GET(request) {
         services: user.lab.services || [],
         turnaroundTime: user.lab.turnaroundTime,
         location: user.lab.location,
+  latitude: user.lab.latitude,
+  longitude: user.lab.longitude,
         rating: user.lab.rating,
         specialties: user.lab.specialties || [],
         logo: user.lab.logo,
