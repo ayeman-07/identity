@@ -24,11 +24,9 @@ function UploadCaseContent() {
   const [isLabFixed, setIsLabFixed] = useState(false); // New state to track if lab is fixed
   const [errors, setErrors] = useState({});
   const [cloudUploads, setCloudUploads] = useState([]); // list of uploaded file records
-  // Cloudinary client config (public vars only). Ensure NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME & NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET are set.
+  // Cloudinary client config (public var only). Unsigned preset removed per request.
   const cloudConfig = {
-    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    unsignedPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
-    uploadEndpoint: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload` : null
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
   };
 
   const router = useRouter();
@@ -327,16 +325,26 @@ function UploadCaseContent() {
                             toast.error(`${file.name} too large (>80MB)`);
                             continue;
                           }
+                          let sig;
+                          try {
+                            const token = localStorage.getItem('token');
+                            const sigRes = await fetch('/api/files/signature?folder=dental-cases', { headers: { Authorization: `Bearer ${token}` } });
+                            sig = await sigRes.json();
+                            if (!sigRes.ok || sig.error) throw new Error(sig.error || 'Signature error');
+                          } catch (err) {
+                            toast.error('Signature fetch failed');
+                            break;
+                          }
                           const form = new FormData();
                           form.append('file', file);
-                          if (cloudConfig.unsignedPreset) form.append('upload_preset', cloudConfig.unsignedPreset);
+                          form.append('api_key', sig.apiKey);
+                          form.append('timestamp', sig.timestamp);
+                          form.append('signature', sig.signature);
+                          form.append('folder', sig.folder);
                           try {
-                            const res = await fetch(cloudConfig.uploadEndpoint, { method: 'POST', body: form });
+                            const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/auto/upload`, { method: 'POST', body: form });
                             const json = await res.json();
-                            if (!res.ok || json.error) {
-                              toast.error(`Cloud upload failed: ${file.name}`);
-                              continue;
-                            }
+                            if (!res.ok || json.error) { toast.error(`Cloud upload failed: ${file.name}`); continue; }
                             // Persist metadata to backend (simple endpoint reuse: create File record)
                             const token = localStorage.getItem('token');
                             const metaRes = await fetch(`/api/files/cloudinary?caseId=${caseId}`, {
