@@ -20,10 +20,13 @@ export async function POST(request) {
       );
     }
 
+    // Basic OTP shape check (6 digits)
+    if (!/^\d{6}$/.test(otp)) {
+      return Response.json({ error: 'Invalid OTP format' }, { status: 400 });
+    }
+
     // Find the reset token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { email }
-    });
+    const resetToken = await prisma.passwordResetToken.findUnique({ where: { email } });
 
     if (!resetToken) {
       return Response.json(
@@ -57,13 +60,9 @@ export async function POST(request) {
 
     // Update user password and delete reset token
     await prisma.$transaction([
-      prisma.user.update({
-        where: { email },
-        data: { password: hashedPassword }
-      }),
-      prisma.passwordResetToken.delete({
-        where: { email }
-      })
+      prisma.user.update({ where: { email }, data: { password: hashedPassword } }),
+      prisma.passwordResetToken.delete({ where: { email } })
+      // TODO: Invalidate existing sessions/JWTs (e.g., maintain token version)
     ]);
 
     return Response.json({

@@ -1,14 +1,15 @@
 import { prisma } from '../../../../lib/prisma.js';
+import { sendMail, passwordResetEmail } from '../../../../lib/mailer.js';
 
 // Generate 6-digit OTP
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Mock email sending function
+// Send reset email via configured transport
 async function sendResetEmail(email, otp) {
-  // In production, this would use a real email service like SendGrid, AWS SES, etc.
-  console.log(`Password reset email sent to ${email} with OTP: ${otp}`);
+  const tpl = passwordResetEmail({ otp });
+  await sendMail({ to: email, subject: tpl.subject, html: tpl.html, text: tpl.text });
   return true;
 }
 
@@ -36,23 +37,22 @@ export async function POST(request) {
       });
     }
 
-    // Generate OTP
+    // Optional throttle: prevent >1 requests every 60s
+    const existing = await prisma.passwordResetToken.findUnique({ where: { email } });
+    if (existing) {
+      const secondsSince = (Date.now() - existing.createdAt.getTime()) / 1000;
+      if (secondsSince < 60) {
+        return Response.json({ message: 'If the email exists, a password reset link has been sent' });
+      }
+      // Remove old token before creating new
+      await prisma.passwordResetToken.delete({ where: { email } });
+    }
+
+    // Generate OTP & expiry
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Delete any existing reset tokens for this email
-    await prisma.passwordResetToken.deleteMany({
-      where: { email }
-    });
-
-    // Create new reset token
-    await prisma.passwordResetToken.create({
-      data: {
-        email,
-        token: otp,
-        expiresAt
-      }
-    });
+    await prisma.passwordResetToken.create({ data: { email, token: otp, expiresAt } });
 
     // Send email (mocked for now)
     await sendResetEmail(email, otp);
