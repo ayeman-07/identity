@@ -28,7 +28,7 @@ export async function POST(request) {
 
     // Validate labId if provided
     let validatedLabId = null;
-    if (labId && labId.trim() !== '') {
+    if (labId && labId.trim() !== '') {  
       const labExists = await prisma.lab.findUnique({
         where: { id: labId }
       });

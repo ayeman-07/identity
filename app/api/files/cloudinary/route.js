@@ -1,6 +1,9 @@
 import { requireClinic } from '../../../../lib/auth.js';
 import { prisma } from '../../../../lib/prisma.js';
 
+
+// This API doesn’t upload the file itself. It’s just a metadata saver that links a Cloudinary file to a patient case in your DB — ensuring only the correct clinic can attach files to its own cases.
+
 export async function POST(request) {
   const authResult = await requireClinic(request);
   if (authResult.error) {

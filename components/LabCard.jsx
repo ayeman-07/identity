@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ export default function LabCard({
 
   // Safely handle missing lab data
   if (!lab) {
-    return <div className="bg-white rounded-lg shadow-md p-4 text-center text-gray-500">Lab data unavailable</div>;
+    return <div className="glass-card rounded-lg p-4 text-center text-gray-400">Lab data unavailable</div>;
   }
 
   // Calculate derived properties with safe defaults
@@ -109,8 +109,8 @@ export default function LabCard({
   };
 
   const cardClasses = size === 'small' 
-    ? "bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
-    : "bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden";
+    ? "glass-card rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
+    : "glass-card rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden";
 
   const headerPadding = size === 'small' ? 'p-3' : 'p-4';
   const titleSize = size === 'small' ? 'text-lg' : 'text-xl';
@@ -132,8 +132,8 @@ export default function LabCard({
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <div className={`${size === 'small' ? 'h-10 w-10' : 'h-12 w-12'} rounded-full bg-indigo-100 flex items-center justify-center`}>
-                  <span className={`text-indigo-600 font-medium ${size === 'small' ? 'text-base' : 'text-lg'}`}>
+                <div className={`${size === 'small' ? 'h-10 w-10' : 'h-12 w-12'} rounded-full bg-indigo-900/10 flex items-center justify-center`}>
+                  <span className={`text-indigo-300 font-medium ${size === 'small' ? 'text-base' : 'text-lg'}`}>
                     {lab.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -141,14 +141,14 @@ export default function LabCard({
             </div>
             
             <div>
-              <h3 className={`${titleSize} font-semibold text-gray-900`}>{lab.name}</h3>
+              <h3 className={`${titleSize} font-semibold text-gray-100`}>{lab.name}</h3>
               {(lab.location || distanceKm != null) && (
-                <p className="text-sm text-gray-500 flex items-center flex-wrap gap-x-2 gap-y-1">
+                <p className="text-sm text-gray-400 flex items-center flex-wrap gap-x-2 gap-y-1">
                   {lab.location && (
                     <span className="flex items-center"><span className="mr-1">📍</span>{lab.location}</span>
                   )}
                   {distanceKm != null && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-900/10 text-indigo-200 text-xs font-medium">
                       {distanceKm} km
                     </span>
                   )}
@@ -174,7 +174,7 @@ export default function LabCard({
             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRatingColor(rating)}`}>
               ⭐ {rating.toFixed(1)}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               {totalReviews} review{totalReviews !== 1 ? 's' : ''}
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function LabCard({
             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTurnaroundColor(turnaroundTime)}`}>
               ⏱️ {turnaroundTime} day{turnaroundTime !== 1 ? 's' : ''}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Turnaround</p>
+            <p className="text-xs text-gray-400 mt-1">Turnaround</p>
           </div>
         </div>
       </div>
@@ -192,8 +192,8 @@ export default function LabCard({
       {/* Specialties */}
       <div className={`${headerPadding} ${size === 'small' ? 'pb-2' : 'pb-4'}`}>
         <div className="text-sm">
-          <span className="text-gray-700 font-medium">Specialties: </span>
-          <span className="text-gray-600">{formatSpecialties(lab.specialties)}</span>
+          <span className="text-gray-200 font-medium">Specialties: </span>
+          <span className="text-gray-300">{formatSpecialties(lab.specialties)}</span>
         </div>
       </div>
 
@@ -201,7 +201,7 @@ export default function LabCard({
         <>
           {/* Case Count */}
           <div className="px-6 pb-4">
-            <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center justify-between text-sm text-gray-400">
               <span>{totalCases} cases completed</span>
               {favoriteCount > 0 && (
                 <span>{favoriteCount} clinic{favoriteCount !== 1 ? 's' : ''} favorited</span>
@@ -212,14 +212,14 @@ export default function LabCard({
           {/* Recent Reviews */}
           {lab.reviews && lab.reviews.length > 0 && (
             <div className="px-6 pb-4">
-              <div className="bg-gray-50 rounded-md p-3">
-                <p className="text-sm text-gray-600 italic">
-                  "{lab.reviews[0].message || 'Great service!'}"
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  - Recent review
-                </p>
-              </div>
+              <div className="rounded-md p-3 glass-card">
+                  <p className="text-sm text-gray-200 italic">
+                    "{lab.reviews[0].message || 'Great service!'}"
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    - Recent review
+                  </p>
+                </div>
             </div>
           )}
         </>
@@ -231,7 +231,7 @@ export default function LabCard({
           {onViewProfile && (
             <button
               onClick={onViewProfile}
-              className={`flex-1 bg-gray-100 text-gray-700 ${buttonSize} rounded-md font-medium hover:bg-gray-200 transition-colors`}
+              className={`flex-1 btn-ghost ${buttonSize} rounded-md font-medium`}
             >
               {size === 'small' ? 'View' : 'View Profile'}
             </button>
@@ -239,7 +239,7 @@ export default function LabCard({
           {onSendCase && (
             <button
               onClick={onSendCase}
-              className={`flex-1 bg-indigo-600 text-white ${buttonSize} rounded-md font-medium hover:bg-indigo-700 transition-colors`}
+              className={`flex-1 btn-gradient ${buttonSize} rounded-md font-medium`}
             >
               {size === 'small' ? 'Send Case' : 'Send Case'}
             </button>

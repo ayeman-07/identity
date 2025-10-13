@@ -37,7 +37,7 @@ export default function LabDiscovery() {
 
   useEffect(() => {
     applyFilters();
-  }, [labs, filters]);
+  }, [labs, filters, userLocation]);
 
   const checkAuth = async () => {
     try {
@@ -107,38 +107,48 @@ export default function LabDiscovery() {
   };
 
   const applyFilters = () => {
-    let filtered = [...labs];
+    let filtered = Array.isArray(labs) ? [...labs] : [];
 
     // Search filter
-    if (filters.search) {
-      filtered = filtered.filter(lab => 
-        lab.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        lab.location?.toLowerCase().includes(filters.search.toLowerCase())
-      );
+    if (filters?.search) {
+      const q = String(filters.search).toLowerCase();
+      filtered = filtered.filter(lab => {
+        const name = String(lab.name || '').toLowerCase();
+        const loc = String(lab.location || '').toLowerCase();
+        return name.includes(q) || loc.includes(q);
+      });
     }
 
     // Specialty filter
-    if (filters.specialties.length > 0) {
-      filtered = filtered.filter(lab =>
-        filters.specialties.some(specialty => lab.specialties.includes(specialty))
-      );
+    if (filters?.specialties && filters.specialties.length > 0) {
+      filtered = filtered.filter(lab => {
+        const labSpecs = Array.isArray(lab.specialties) ? lab.specialties.map(s => String(s).toLowerCase()) : [];
+        return filters.specialties.some(specialty => labSpecs.includes(String(specialty).toLowerCase()));
+      });
     }
 
     // Turnaround time filter
-    if (filters.maxTurnaroundTime) {
-      filtered = filtered.filter(lab => lab.turnaroundTime <= filters.maxTurnaroundTime);
+    if (filters?.maxTurnaroundTime != null) {
+      const maxT = Number(filters.maxTurnaroundTime);
+      filtered = filtered.filter(lab => {
+        if (lab.turnaroundTime == null) return false;
+        return Number(lab.turnaroundTime) <= maxT;
+      });
     }
 
-    // Rating filter
-    if (filters.minRating) {
-      filtered = filtered.filter(lab => lab.rating >= filters.minRating);
+    // Rating filter (use averageRating fallback)
+    if (filters?.minRating != null) {
+      const minR = Number(filters.minRating);
+      filtered = filtered.filter(lab => {
+        const labRating = (lab.averageRating != null) ? Number(lab.averageRating) : (lab.rating != null ? Number(lab.rating) : 0);
+        return labRating >= minR;
+      });
     }
 
     // Location filter
-    if (filters.location) {
-      filtered = filtered.filter(lab =>
-        lab.location?.toLowerCase().includes(filters.location.toLowerCase())
-      );
+    if (filters?.location) {
+      const q = String(filters.location).toLowerCase();
+      filtered = filtered.filter(lab => String(lab.location || '').toLowerCase().includes(q));
     }
 
     // Distance filter (requires userLocation & lab coords)
@@ -151,8 +161,9 @@ export default function LabDiscovery() {
         return { ...lab, _distanceKm: null };
       });
 
-      if (filters.maxDistanceKm) {
-        filtered = filtered.filter(lab => lab._distanceKm != null && lab._distanceKm <= filters.maxDistanceKm);
+      if (filters?.maxDistanceKm != null) {
+        const maxD = Number(filters.maxDistanceKm);
+        filtered = filtered.filter(lab => lab._distanceKm != null && Number(lab._distanceKm) <= maxD);
       }
 
       // Sort by distance first if available
@@ -243,24 +254,27 @@ export default function LabDiscovery() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading labs...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card px-8 py-7 rounded-xl flex flex-col items-center border border-white/10 w-full max-w-md text-center">
+          <div className="h-12 w-12 rounded-full border-2 border-indigo-400/30 border-t-indigo-500 animate-spin mb-5" />
+          <h2 className="text-lg font-semibold bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">Loading labs</h2>
+          <p className="mt-2 text-xs tracking-wide text-gray-400">Fetching nearby labs and your favorites…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="glass-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Discover Labs</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-3xl font-bold">
+                <span className="tx-gradient">Discover Labs</span>
+              </h1>
+              <p className="mt-1 text-sm text-gray-400">
                 Find the perfect lab partner for your dental cases
               </p>
               {userLocation && (
@@ -273,7 +287,7 @@ export default function LabDiscovery() {
             <div className="flex space-x-3">
               <button
                 onClick={() => router.push('/clinic/dashboard')}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                className="btn-ghost px-4 py-2 cursor-pointer"
               >
                 Back to Dashboard
               </button>
@@ -283,29 +297,29 @@ export default function LabDiscovery() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+          <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1 space-y-4">
             <LabFilters filters={filters} onFilterChange={handleFilterChange} />
-            <div className="bg-white rounded-lg shadow p-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center justify-between">
+            <div className="glass-card p-4">
+              <h4 className="text-sm font-medium text-gray-100 mb-3 flex items-center justify-between">
                 Distance
                 {userLocation && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">GPS</span>
                 )}
               </h4>
               {!userLocation && geoSupported && (
-                <button onClick={getBrowserLocation} className="text-xs text-indigo-600 hover:text-indigo-800 underline">Enable location</button>
+                <button onClick={getBrowserLocation} className="text-xs text-indigo-300 hover:text-indigo-100 underline">Enable location</button>
               )}
               {userLocation && (
                 <div className="mt-1">
-                  <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
                     <span>{filters.maxDistanceKm ? `≤ ${filters.maxDistanceKm} km` : 'Any distance'}</span>
                     {filters.maxDistanceKm && (
                       <button
                         type="button"
                         onClick={() => handleFilterChange({ ...filters, maxDistanceKm: null })}
-                        className="text-indigo-600 hover:text-indigo-800"
+                        className="text-indigo-300 hover:text-indigo-100"
                       >Reset</button>
                     )}
                   </div>
@@ -319,9 +333,9 @@ export default function LabDiscovery() {
                       const val = parseInt(e.target.value, 10);
                       handleFilterChange({ ...filters, maxDistanceKm: val === 0 ? null : val });
                     }}
-                    className="w-full accent-indigo-600"
+                    className="w-full accent-indigo-500"
                   />
-                  <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                  <div className="flex justify-between text-[10px] text-gray-500 mt-1">
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
@@ -341,11 +355,11 @@ export default function LabDiscovery() {
             {/* Results Header */}
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-lg font-medium text-gray-900">
+                <h2 className="text-lg font-medium text-gray-100">
                   {filteredLabs.length} Lab{filteredLabs.length !== 1 ? 's' : ''} Found
                 </h2>
                 {filters.search && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-400 mt-1">
                     Results for "{filters.search}"
                   </p>
                 )}
@@ -370,8 +384,8 @@ export default function LabDiscovery() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-gray-400 text-6xl mb-4">🔍</div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No labs found</h3>
-                <p className="text-gray-500 mb-4">
+                <h3 className="text-lg font-medium text-gray-100 mb-2">No labs found</h3>
+                <p className="text-gray-400 mb-4">
                   Try adjusting your filters to see more results
                 </p>
                 <button
@@ -380,9 +394,10 @@ export default function LabDiscovery() {
                     maxTurnaroundTime: null,
                     minRating: null,
                     location: '',
-                    search: ''
+                      search: '',
+                      maxDistanceKm: null
                   })}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+                  className="btn-gradient px-4 py-2"
                 >
                   Clear All Filters
                 </button>
