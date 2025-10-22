@@ -68,8 +68,7 @@ export default function LabFilters({ filters, onFilterChange }) {
   const hasActiveFilters = 
     localFilters.specialties?.length > 0 ||
     localFilters.maxTurnaroundTime ||
-    localFilters.minRating ||
-    localFilters.location ||
+    localFilters.minRating |    localFilters.location ||
     localFilters.search;
 
   return (

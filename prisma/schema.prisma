@@ -34,7 +34,7 @@ model User {
   lab       Lab?
   messages  Message[] // Messages sent by this user
   clinicReviews Review[] @relation("ClinicReviews") // Reviews written by clinic users
-  labReviews Review[] @relation("LabReviews") // Reviews received by lab users
+  labReviews Review[] @relation("LabReviews") // Reviews received by lab userscreatedAt DateTime @default(now())
   createdAt DateTime @default(now())
 }
 
